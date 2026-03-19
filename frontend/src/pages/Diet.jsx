@@ -146,7 +146,7 @@ export default function Diet() {
               <div className="space-y-4 mb-5">
                 <div>
                   <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Item Name</label>
-                  <input required type="text" placeholder="e.g., Eggs" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-focusOrange box-border" />
+                  <input required type="text" placeholder="e.g. Eggs" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-focusOrange box-border" />
                 </div>
                 <div className="flex space-x-3">
                   <div className="flex-1">
