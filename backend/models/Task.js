@@ -6,7 +6,7 @@ const taskSchema = new mongoose.Schema({
   title: { type: String, required: true },
   type: { 
     type: String, 
-    enum: ['one-time', 'recurring', 'long-term'], 
+    enum: ['daily (one-time)', 'daily (recurring)', 'long-term'], 
     required: true 
   },
   schedule: {
@@ -14,7 +14,7 @@ const taskSchema = new mongoose.Schema({
     daysOfWeek: [{ type: Number }] // 0 = Sunday, 1 = Monday, etc.
   },
   isCompleted: { type: Boolean, default: false },
-  dueDate: { type: Date } // Important for one-time and long-term tasks
+  dueDate: { type: Date } // Important for daily (one-time) and long-term tasks
 }, { timestamps: true });
 
 module.exports = mongoose.model('Task', taskSchema);

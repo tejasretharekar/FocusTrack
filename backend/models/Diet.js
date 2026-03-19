@@ -1,19 +1,32 @@
 // backend/models/Diet.js
 const mongoose = require('mongoose');
 
-const dietItemSchema = new mongoose.Schema({
-  name: { type: String, required: true }, // e.g., "Eggs"
-  targetQuantity: { type: String, required: true }, // e.g., "6" or "500ml"
-  isCompleted: { type: Boolean, default: false },
-  calories: { type: Number, default: 0 }
-});
-
-const dietPlanSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  date: { type: Date, default: Date.now },
-  items: [dietItemSchema],
-  targetCalories: { type: Number, required: true },
-  totalCaloriesConsumed: { type: Number, default: 0 }
+const dietSchema = new mongoose.Schema({
+  user: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  name: { 
+    type: String, 
+    required: true // e.g., "Eggs"
+  },
+  quantity: { 
+    type: Number, 
+    required: true // e.g., 6
+  },
+  unit: { 
+    type: String, 
+    required: true // e.g., "items", "ml", "grams"
+  },
+  calories: { 
+    type: Number, 
+    required: true // Total calories for this quantity
+  },
+  completedDates: { 
+    type: [String], // Will store dates like "YYYY-MM-DD"
+    default: [] 
+  }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Diet', dietPlanSchema);
+module.exports = mongoose.model('Diet', dietSchema);

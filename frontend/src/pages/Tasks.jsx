@@ -5,14 +5,14 @@ import { ArrowLeft, Plus, Trash2, Check } from 'lucide-react';
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('one-time');
+  const [activeTab, setActiveTab] = useState('daily (one-time)');
   const [newTask, setNewTask] = useState('');
   
   // Dummy state so we can see it working before we wire up the backend
   const [tasks, setTasks] = useState([
-    { _id: '1', title: 'Drink 2L Water', type: 'recurring', isCompleted: false },
-    { _id: '2', title: 'Finish Project Proposal', type: 'one-time', isCompleted: true },
-    { _id: '3', title: 'Read 10 Pages', type: 'recurring', isCompleted: false },
+    { _id: '1', title: 'Drink 2L Water', type: 'daily (recurring)', isCompleted: false },
+    { _id: '2', title: 'Finish Project Proposal', type: 'daily (one-time)', isCompleted: true },
+    { _id: '3', title: 'Read 10 Pages', type: 'daily (recurring)', isCompleted: false },
   ]);
 
   const addTask = (e) => {
@@ -41,12 +41,12 @@ export default function Tasks() {
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition mr-3 md:mr-4">
           <ArrowLeft size={24} className="md:w-7 md:h-7" />
         </button>
-        <h1 className="text-2xl md:text-3xl font-bold text-focusText">My Tasks</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-focusText">My Tasks (To-do List)</h1>
       </div>
 
       {/* Responsive Tabs (Wraps on small screens) */}
       <div className="w-full max-w-2xl flex flex-wrap justify-center gap-2 bg-focusCard p-2 rounded-xl mb-6 shadow-lg border border-gray-800">
-        {['one-time', 'recurring', 'long-term'].map((tab) => (
+        {['daily (one-time)', 'daily (recurring)', 'long-term'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
