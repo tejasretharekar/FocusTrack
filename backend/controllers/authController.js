@@ -20,7 +20,8 @@ exports.registerUser = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error("REGISTRATION ERROR: ", error); // This forces it to show in Render logs
+    res.status(500).json({ message: error.message }); // This sends the exact error to your browser
   }
 };
 
@@ -37,6 +38,7 @@ exports.loginUser = async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error("REGISTRATION ERROR: ", error); // This forces it to show in Render logs
+    res.status(500).json({ message: error.message }); // This sends the exact error to your browser
   }
 };
