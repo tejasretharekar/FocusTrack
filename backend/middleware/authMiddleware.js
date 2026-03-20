@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// 1. Checks if the user is logged in
 const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -9,17 +10,17 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
-      return next(); // Added 'return' to prevent double execution
+      next();
     } catch (error) {
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+      res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
-  
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
+// 2. Checks if the logged-in user is an admin
 const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -28,5 +29,4 @@ const admin = (req, res, next) => {
   }
 };
 
-// Export both functions properly at the bottom
 module.exports = { protect, admin };

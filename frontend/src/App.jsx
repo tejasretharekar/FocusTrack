@@ -9,14 +9,24 @@ import Leaderboard from './pages/Leaderboard';
 import Dashboard from './pages/Dashboard';
 import Challenges from './pages/Challenges';
 import Admin from './pages/Admin';
-import Auth from './pages/Auth'; // 1. Import Auth
+import Auth from './pages/Auth';
+import AdminAuth from './pages/AdminAuth'; // Import Admin Auth
 
-// 2. Create a simple wrapper to protect routes
+// Protects regular user routes
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/auth" />;
-  }
+  if (!token) return <Navigate to="/auth" />;
+  return children;
+};
+
+// Protects Admin routes specifically
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
+  
+  if (!token) return <Navigate to="/admin/auth" />;
+  if (user?.role !== 'admin') return <Navigate to="/" />; // Kick non-admins to home
+  
   return children;
 };
 
@@ -24,10 +34,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Route */}
+        {/* Public Routes */}
         <Route path="/auth" element={<Auth />} />
+        <Route path="/admin/auth" element={<AdminAuth />} />
         
-        {/* Protected Routes */}
+        {/* Protected User Routes */}
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
         <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
@@ -36,7 +47,9 @@ function App() {
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        
+        {/* Protected Admin Route */}
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Routes>
     </Router>
   );
