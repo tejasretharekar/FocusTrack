@@ -184,7 +184,7 @@ export default function Workout() {
               <div className="space-y-4 mb-5">
                 <div>
                   <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Exercise Name</label>
-                  <input required type="text" placeholder="e.g., Pushups, Plank" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-focusPurple box-border" />
+                  <input required type="text" placeholder="e.g. Pushups, Plank" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-focusPurple box-border" />
                 </div>
                 
                 <div className="flex space-x-3">
