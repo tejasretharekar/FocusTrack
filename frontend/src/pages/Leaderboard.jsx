@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Medal, Award, Flame } from 'lucide-react';
 
-// Use environment variable for deployment, fallback to localhost for dev
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 export default function Leaderboard() {
   const navigate = useNavigate();

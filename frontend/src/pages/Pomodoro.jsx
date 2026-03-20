@@ -19,7 +19,7 @@ export default function Pomodoro() {
       const token = localStorage.getItem('token'); 
       if (!token) return; 
 
-      await fetch('http://localhost:5000/api/pomodoro/log', {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/pomodoro/log`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

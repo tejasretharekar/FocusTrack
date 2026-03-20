@@ -18,7 +18,7 @@ export default function Challenges() {
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/challenges', {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/challenges`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -64,7 +64,7 @@ export default function Challenges() {
   const handleCreateChallenge = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/challenges', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/challenges`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(newChallenge)

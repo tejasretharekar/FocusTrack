@@ -19,7 +19,7 @@ export default function Workout() {
 
   const fetchWorkouts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/workouts', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/workouts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
@@ -60,7 +60,7 @@ export default function Workout() {
   const handleAddWorkout = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/workouts', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/workouts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export default function Workout() {
     }));
 
     try {
-      await fetch(`http://localhost:5000/api/workouts/${id}/toggle`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/workouts/${id}/toggle`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

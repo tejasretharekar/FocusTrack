@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Brain, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
-// Use 127.0.0.1 instead of localhost to prevent IPv6 binding issues in Node
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 export default function Auth() {
   const navigate = useNavigate();
