@@ -1,5 +1,6 @@
 // frontend/src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // <-- CORRECT NAMED IMPORT
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
 import Pomodoro from './pages/Pomodoro';
@@ -10,7 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Challenges from './pages/Challenges';
 import Admin from './pages/Admin';
 import Auth from './pages/Auth';
-import AdminAuth from './pages/AdminAuth'; // Import Admin Auth
+import AdminAuth from './pages/AdminAuth';
 
 // Protects regular user routes
 const ProtectedRoute = ({ children }) => {
@@ -25,7 +26,7 @@ const AdminRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   
   if (!token) return <Navigate to="/admin/auth" />;
-  if (user?.role !== 'admin') return <Navigate to="/" />; // Kick non-admins to home
+  if (user?.role !== 'admin') return <Navigate to="/" />;
   
   return children;
 };
@@ -33,6 +34,9 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+      {/* Add Toaster here so it's available on all pages */}
+      <Toaster position="top-center" reverseOrder={false} /> 
+      
       <Routes>
         {/* Public Routes */}
         <Route path="/auth" element={<Auth />} />
