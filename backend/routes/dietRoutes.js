@@ -1,7 +1,7 @@
 // backend/routes/dietRoutes.js
 const express = require('express');
-const { getDiet, addDietItem, toggleDietCompletion } = require('../controllers/dietController');
-const { protect } = require('../middleware/authMiddleware'); // We reuse our auth middleware
+const { getDiet, addDietItem, toggleDietCompletion, deleteDietItem } = require('../controllers/dietController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -11,5 +11,9 @@ router.route('/')
 
 router.route('/:id/toggle')
   .put(protect, toggleDietCompletion);
+
+// NEW DELETE ROUTE
+router.route('/:id')
+  .delete(protect, deleteDietItem);
 
 module.exports = router;

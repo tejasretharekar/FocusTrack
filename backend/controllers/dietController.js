@@ -56,3 +56,22 @@ exports.toggleDietCompletion = async (req, res) => {
     res.status(500).json({ message: 'Failed to toggle completion' });
   }
 };
+
+// @desc    Delete a diet item
+// @route   DELETE /api/diet/:id
+exports.deleteDietItem = async (req, res) => {
+  try {
+    const item = await Diet.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    
+    // Security check: Only the owner can delete their item
+    if (item.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    await item.deleteOne();
+    res.status(200).json({ message: 'Item deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete item' });
+  }
+};
