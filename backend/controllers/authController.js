@@ -7,15 +7,15 @@ const generateToken = (id) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, username, password } = req.body;
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ username });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, username, password });
     if (user) {
       res.status(201).json({
-        _id: user.id, name: user.name, email: user.email, role: user.role,
+        _id: user.id, name: user.name, username: user.username, role: user.role,
         token: generateToken(user._id)
       });
     }
@@ -26,16 +26,16 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
     if (user && (await user.matchPassword(password))) {
       res.json({
-        _id: user.id, name: user.name, email: user.email, role: user.role,
+        _id: user.id, name: user.name, username: user.username, role: user.role,
         token: generateToken(user._id)
       });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(401).json({ message: 'Invalid username or password' });
     }
   } catch (error) {
     console.error("REGISTRATION ERROR: ", error); // This forces it to show in Render logs

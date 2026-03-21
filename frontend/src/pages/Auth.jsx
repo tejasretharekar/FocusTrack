@@ -1,7 +1,7 @@
 // frontend/src/pages/Auth.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Brain, AtSign, Lock, User, ArrowRight } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -11,7 +11,7 @@ export default function Auth() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    username: '',
     password: ''
   });
 
@@ -20,8 +20,8 @@ export default function Auth() {
     setError('');
 
     const endpoint = isLogin ? '/auth/login' : '/auth/register';
-    const payload = isLogin 
-      ? { email: formData.email, password: formData.password }
+    const payload = isLogin
+      ? { username: formData.username, password: formData.password }
       : formData;
 
     try {
@@ -35,8 +35,7 @@ export default function Auth() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({ id: data._id, name: data.name, role: data.role }));
-        navigate('/');
+        localStorage.setItem('user', JSON.stringify({ id: data._id, name: data.name, username: data.username, role: data.role })); navigate('/');
       } else {
         setError(data.message || 'Authentication failed');
       }
@@ -49,7 +48,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-[#1e1e28] border border-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
-        
+
         {/* Header Section */}
         <div className="p-8 text-center bg-gradient-to-b from-[#251538] to-transparent">
           <div className="flex justify-center mb-4">
@@ -76,28 +75,28 @@ export default function Auth() {
           {!isLogin && (
             <div className="relative">
               <User className="absolute left-4 top-3.5 text-gray-500" size={20} />
-              <input 
+              <input
                 type="text" required placeholder="Full Name"
-                value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
+                value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute left-4 top-3.5 text-gray-500" size={20} />
-            <input 
-              type="email" required placeholder="Email Address"
-              value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
+            <AtSign className="absolute left-4 top-3.5 text-gray-500" size={20} />
+            <input
+              type="username" required placeholder="Username"
+              value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
             />
           </div>
 
           <div className="relative">
             <Lock className="absolute left-4 top-3.5 text-gray-500" size={20} />
-            <input 
+            <input
               type="password" required placeholder="Password"
-              value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
+              value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
             />
           </div>
@@ -108,8 +107,8 @@ export default function Auth() {
           </button>
 
           <div className="text-center mt-6">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setIsLogin(!isLogin)}
               className="text-gray-400 hover:text-white text-sm transition-colors"
             >

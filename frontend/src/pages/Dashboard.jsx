@@ -1,7 +1,7 @@
 // frontend/src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BarChart3, CheckSquare, Flame, Dumbbell } from 'lucide-react';
+import { ArrowLeft, BarChart3, CheckSquare, Flame, Dumbbell, User } from 'lucide-react'; // Added User icon
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -15,6 +15,9 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   const token = localStorage.getItem('token');
+  
+  // 1. Safely parse user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -50,7 +53,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
-      <div className="w-full max-w-md flex items-center justify-between mb-8 mt-2 md:mt-0">
+      <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
@@ -61,8 +64,22 @@ export default function Dashboard() {
       </div>
 
       <div className="w-full max-w-md flex-1 flex flex-col pb-12">
+        
+        {/* 2. User Profile Header added here */}
+        <div className="bg-[#1e1e28] border border-gray-800 rounded-3xl p-6 mb-6 flex items-center space-x-5 shadow-lg">
+          <div className="bg-gradient-to-br from-orange-500 to-purple-500 p-1 rounded-full">
+            <div className="bg-[#121212] p-3 rounded-full">
+              <User size={32} className="text-white" />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-white tracking-wide">{user.name || 'User'}</h2>
+            <p className="text-purple-400 font-medium tracking-wider text-sm">@{user.username || 'username'}</p>
+          </div>
+        </div>
+
         {isLoading ? (
-          <div className="flex-1 flex justify-center items-center">
+          <div className="flex-1 flex justify-center items-center mt-12">
             <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
