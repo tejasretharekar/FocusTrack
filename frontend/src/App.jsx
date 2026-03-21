@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast'; // <-- CORRECT NAMED IMPORT
+import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Tasks from './pages/Tasks';
 import Pomodoro from './pages/Pomodoro';
@@ -43,7 +44,8 @@ function App() {
         <Route path="/admin/auth" element={<AdminAuth />} />
         
         {/* Protected User Routes */}
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><Landing /></ProtectedRoute>} />
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
         <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
         <Route path="/diet" element={<ProtectedRoute><Diet /></ProtectedRoute>} />
