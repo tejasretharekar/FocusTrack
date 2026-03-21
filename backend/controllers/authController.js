@@ -26,19 +26,31 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
+  // 1. Destructure username (NOT email)
   const { username, password } = req.body;
+
+  // 2. CRITICAL FIX: Stop immediately if username or password is missing
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Please provide both username and password' });
+  }
+
   try {
+    // 3. Query explicitly by username
     const user = await User.findOne({ username });
+
+    // 4. Verify user exists AND password matches
     if (user && (await user.matchPassword(password))) {
       res.json({
-        _id: user.id, name: user.name, username: user.username, role: user.role,
-        token: generateToken(user._id)
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        role: user.role,
+        token: generateToken(user._id),
       });
     } else {
       res.status(401).json({ message: 'Invalid username or password' });
     }
   } catch (error) {
-    console.error("REGISTRATION ERROR: ", error); // This forces it to show in Render logs
-    res.status(500).json({ message: error.message }); // This sends the exact error to your browser
+    res.status(500).json({ message: 'Server error during login' });
   }
 };
