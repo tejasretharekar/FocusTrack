@@ -26,19 +26,16 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  // 1. Destructure username (NOT email)
   const { username, password } = req.body;
 
-  // 2. CRITICAL FIX: Stop immediately if username or password is missing
   if (!username || !password) {
     return res.status(400).json({ message: 'Please provide both username and password' });
   }
 
   try {
-    // 3. Query explicitly by username
-    const user = await User.findOne({ username });
+    // SECURITY FIX: Cast to String to prevent NoSQL injection and strict match
+    const user = await User.findOne({ username: String(username) });
 
-    // 4. Verify user exists AND password matches
     if (user && (await user.matchPassword(password))) {
       res.json({
         _id: user._id,

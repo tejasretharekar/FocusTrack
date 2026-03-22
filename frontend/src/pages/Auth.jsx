@@ -19,6 +19,10 @@ export default function Auth() {
     e.preventDefault();
     setError('');
 
+    // FIX: Wipe any ghost sessions/stale admin tokens before attempting login
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
     const endpoint = isLogin ? '/auth/login' : '/auth/register';
     const payload = isLogin
       ? { username: formData.username, password: formData.password }
@@ -86,8 +90,13 @@ export default function Auth() {
           <div className="relative">
             <AtSign className="absolute left-4 top-3.5 text-gray-500" size={20} />
             <input
-              type="username" required placeholder="Username"
-              value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              type="text" // <--- CHANGED FROM "username" TO "text"
+              name="username" // <--- ADDED NAME ATTRIBUTE
+              autoComplete="off" // <--- ADDED TO PREVENT BROWSER HIJACKING
+              required
+              placeholder="Username"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
             />
           </div>
@@ -95,8 +104,13 @@ export default function Auth() {
           <div className="relative">
             <Lock className="absolute left-4 top-3.5 text-gray-500" size={20} />
             <input
-              type="password" required placeholder="Password"
-              value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              type="password"
+              name="password" // <--- ADDED NAME ATTRIBUTE
+              autoComplete="new-password" // <--- TELLS BROWSER NOT TO AUTOFILL OLD PASSWORDS
+              required
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
             />
           </div>
