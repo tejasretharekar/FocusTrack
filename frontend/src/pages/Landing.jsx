@@ -19,8 +19,10 @@ export default function Landing() {
       
       <nav className="w-full px-6 py-6 flex justify-center items-center max-w-7xl mx-auto z-50 relative">
         <div className="flex items-center space-x-3">
-          <Brain className="text-purple-500" size={60} />
-          <span className="text-5xl font-black tracking-widest text-white uppercase">FocusTrack</span>
+          {/* UPDATED: Removed hardcoded size={60} and used responsive Tailwind width/height classes */}
+          <Brain className="text-purple-500 w-10 h-10 md:w-[60px] md:h-[60px]" />
+          {/* UPDATED: Added text-3xl for mobile, scales to text-5xl on medium screens and up */}
+          <span className="text-3xl md:text-5xl font-black tracking-widest text-white uppercase">FocusTrack</span>
         </div>
       </nav>
 
@@ -34,7 +36,8 @@ export default function Landing() {
             Gamify Your Productivity
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tight">
+          {/* UPDATED: Scaled text down to text-4xl on mobile, then text-6xl/7xl on larger screens */}
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight tracking-tight">
             Stop Procrastinating. <br />
             {/* Updated text gradient to match Auth page */}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
@@ -42,7 +45,7 @@ export default function Landing() {
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
             The ultimate gamified productivity system. Track your deep work, conquer tasks, challenge friends, and monitor your physical health—all in one command center.
           </p>
           
