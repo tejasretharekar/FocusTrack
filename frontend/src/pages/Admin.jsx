@@ -100,7 +100,7 @@ export default function Admin() {
     <div className="min-h-screen w-full bg-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border font-sans relative">
       
       <div className="w-full max-w-4xl flex items-center justify-between mb-8 mt-2 md:mt-0 border-b border-red-900/30 pb-4">
-        <button onClick={() => navigate('/home')} className="text-gray-500 hover:text-white transition p-2">
+        <button onClick={() => navigate('/')} className="text-gray-500 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
         <h2 className="text-xl md:text-2xl font-black text-white tracking-widest flex items-center">
@@ -142,55 +142,63 @@ export default function Admin() {
 
             <h3 className="text-lg font-bold text-gray-300 tracking-wider mb-4 uppercase">User Management</h3>
             
-            <div className="bg-[#121212] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-              <div className="hidden md:grid grid-cols-12 gap-4 bg-[#1a1a1a] p-4 border-b border-gray-800 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                <div className="col-span-3">User</div>
-                <div className="col-span-4">Email</div>
-                <div className="col-span-2">Joined</div>
-                <div className="col-span-2">Role</div>
-                <div className="col-span-1 text-right">Action</div>
-              </div>
+            {/* UPDATED: Added overflow-x-auto to make the table scroll horizontally on mobile */}
+            <div className="bg-[#121212] border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
+              <div className="overflow-x-auto w-full">
+                {/* Enforces a minimum width so columns don't squish */}
+                <div className="min-w-[700px]">
+                  
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-4 bg-[#1a1a1a] p-4 border-b border-gray-800 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    <div className="col-span-3">User</div>
+                    <div className="col-span-4">Email</div>
+                    <div className="col-span-2">Joined</div>
+                    <div className="col-span-2">Role</div>
+                    <div className="col-span-1 text-right">Action</div>
+                  </div>
 
-              {users.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No users found in the database.</div>
-              ) : (
-                <div className="divide-y divide-gray-800/50">
-                  {users.map(user => (
-                    <div 
-                      key={user._id} 
-                      onClick={() => handleRowClick(user._id)}
-                      className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center hover:bg-[#1a1a24] transition-colors cursor-pointer relative"
-                    >
-                      <div className="col-span-1 md:col-span-3 flex flex-col pointer-events-none">
-                        <span className="font-bold text-gray-200">{user.name}</span>
-                        <span className="text-xs text-gray-500 md:hidden">{user.email}</span>
-                      </div>
-                      <div className="hidden md:block col-span-4 text-sm text-gray-400 truncate pointer-events-none">
-                        {user.email}
-                      </div>
-                      <div className="hidden md:block col-span-2 text-sm text-gray-500 pointer-events-none">
-                        {user.createdAt ? user.createdAt.split('T')[0] : 'N/A'}
-                      </div>
-                      <div className="col-span-1 md:col-span-2 pointer-events-none">
-                        <span className={`text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider ${user.role === 'admin' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-gray-800 text-gray-400'}`}>
-                          {user.role || 'user'}
-                        </span>
-                      </div>
-                      <div className="col-span-1 md:col-span-1 flex justify-end absolute md:relative right-4 md:right-0 mt-[-30px] md:mt-0 z-10">
-                        {user.role !== 'admin' && (
-                          <button 
-                            onClick={(e) => handleDeleteUser(e, user._id, user.name)}
-                            className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                            title="Delete User"
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                        )}
-                      </div>
+                  {users.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">No users found in the database.</div>
+                  ) : (
+                    <div className="divide-y divide-gray-800/50">
+                      {users.map(user => (
+                        <div 
+                          key={user._id} 
+                          onClick={() => handleRowClick(user._id)}
+                          className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-[#1a1a24] transition-colors cursor-pointer"
+                        >
+                          <div className="col-span-3 flex flex-col pointer-events-none truncate">
+                            <span className="font-bold text-gray-200 truncate">{user.name}</span>
+                          </div>
+                          <div className="col-span-4 text-sm text-gray-400 truncate pointer-events-none">
+                            {user.email}
+                          </div>
+                          <div className="col-span-2 text-sm text-gray-500 pointer-events-none">
+                            {user.createdAt ? user.createdAt.split('T')[0] : 'N/A'}
+                          </div>
+                          <div className="col-span-2 pointer-events-none">
+                            <span className={`text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider inline-block ${user.role === 'admin' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-gray-800 text-gray-400'}`}>
+                              {user.role || 'user'}
+                            </span>
+                          </div>
+                          <div className="col-span-1 flex justify-end">
+                            {user.role !== 'admin' && (
+                              <button 
+                                onClick={(e) => handleDeleteUser(e, user._id, user.name)}
+                                className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                title="Delete User"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
                 </div>
-              )}
+              </div>
             </div>
           </>
         )}
@@ -202,8 +210,8 @@ export default function Admin() {
             
             <div className="sticky top-0 bg-[#121212] border-b border-gray-800 p-6 flex justify-between items-center z-10">
               <div>
-                <h2 className="text-2xl font-bold text-white">{selectedUserDetails.user.name}</h2>
-                <p className="text-gray-400 text-sm">{selectedUserDetails.user.email}</p>
+                <h2 className="text-2xl font-bold text-white truncate max-w-[200px] sm:max-w-xs">{selectedUserDetails.user.name}</h2>
+                <p className="text-gray-400 text-sm truncate max-w-[200px] sm:max-w-xs">{selectedUserDetails.user.email}</p>
               </div>
               <button onClick={closeModal} className="text-gray-500 hover:text-white bg-gray-800/50 hover:bg-gray-700 p-2 rounded-full transition">
                 <X size={24} />

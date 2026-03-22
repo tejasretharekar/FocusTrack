@@ -17,29 +17,28 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-purple-500/30 overflow-x-hidden">
       
-      <nav className="w-full px-6 py-6 flex justify-center items-center max-w-7xl mx-auto z-50 relative">
-        <div className="flex items-center space-x-3">
-          {/* UPDATED: Removed hardcoded size={60} and used responsive Tailwind width/height classes */}
-          <Brain className="text-purple-500 w-10 h-10 md:w-[60px] md:h-[60px]" />
-          {/* UPDATED: Added text-3xl for mobile, scales to text-5xl on medium screens and up */}
-          <span className="text-3xl md:text-5xl font-black tracking-widest text-white uppercase">FocusTrack</span>
+      {/* UPDATED: Reduced side padding on mobile to px-4 to give the logo more room */}
+      <nav className="w-full px-4 md:px-6 py-6 flex justify-center items-center max-w-7xl mx-auto z-50 relative">
+        {/* UPDATED: Reduced gap space on mobile to space-x-2 */}
+        <div className="flex items-center space-x-2 md:space-x-3">
+          {/* UPDATED: Shrunk mobile icon to w-8 h-8 (32px), keeps 60px on desktop */}
+          <Brain className="text-purple-500 w-8 h-8 sm:w-10 sm:h-10 md:w-[60px] md:h-[60px]" />
+          {/* UPDATED: Shrunk mobile text to text-2xl and slightly reduced letter tracking for mobile to guarantee fit */}
+          <span className="text-2xl sm:text-3xl md:text-5xl font-black tracking-wider md:tracking-widest text-white uppercase">FocusTrack</span>
         </div>
       </nav>
 
       <main className="relative pt-20 pb-32 flex flex-col items-center justify-center text-center px-4">
-        {/* Updated background glow to purple */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-900/20 blur-[120px] rounded-full pointer-events-none"></div>
 
         <div className="z-10 max-w-4xl space-y-8 animate-fade-in">
-          {/* Updated gamify pill to purple */}
           <div className="inline-block px-4 py-1.5 rounded-full border border-purple-900/50 bg-purple-900/10 text-purple-400 text-sm font-bold tracking-widest uppercase mb-4">
             Gamify Your Productivity
           </div>
           
-          {/* UPDATED: Scaled text down to text-4xl on mobile, then text-6xl/7xl on larger screens */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight tracking-tight">
+          {/* UPDATED: Safely scaled down the H1 for extremely small screens (text-3xl -> sm:text-5xl -> md:text-7xl) */}
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black leading-tight tracking-tight">
             Stop Procrastinating. <br />
-            {/* Updated text gradient to match Auth page */}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
               Start Dominating.
             </span>
@@ -50,7 +49,6 @@ export default function Landing() {
           </p>
           
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {/* Updated button to use the orange-to-purple gradient with a purple glow shadow */}
             <button onClick={() => navigate('/auth')} className="flex items-center justify-center px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-500 hover:opacity-90 text-white font-bold rounded-xl transition-all text-lg group w-full sm:w-auto shadow-[0_0_20px_rgba(168,85,247,0.4)]">
               Log In
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />

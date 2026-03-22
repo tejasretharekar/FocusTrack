@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Medal, Award, Flame } from 'lucide-react';
 
-
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 export default function Leaderboard() {
@@ -50,7 +49,7 @@ export default function Leaderboard() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
       <div className="w-full max-w-md flex items-center justify-between mb-8 mt-2 md:mt-0">
-        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
         <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider flex items-center">
@@ -76,21 +75,31 @@ export default function Leaderboard() {
               const isTop3 = index < 3;
               return (
                 <div key={user._id || index} className={`flex items-center justify-between p-4 md:p-5 rounded-2xl border transition-transform hover:scale-[1.02] ${styles.card}`}>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-10">{styles.icon}</div>
-                    <div>
-                      <h3 className={`font-bold ${isTop3 ? 'text-xl' : 'text-lg'} text-white tracking-wide`}>{user.name || 'Anonymous User'}</h3>
-                      <div className="flex space-x-3 text-xs md:text-sm text-gray-400 mt-1">
+                  
+                  {/* UPDATED: Added min-w-0 to flex child so truncate works inside it */}
+                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+                    <div className="flex items-center justify-center w-8 sm:w-10 shrink-0">{styles.icon}</div>
+                    <div className="min-w-0 flex-1">
+                      
+                      {/* UPDATED: Added truncate class to enforce single line logic for long names */}
+                      <h3 className={`font-bold ${isTop3 ? 'text-xl' : 'text-lg'} text-white tracking-wide truncate max-w-[140px] xs:max-w-[180px] sm:max-w-[250px]`}>
+                        {user.name || 'Anonymous User'}
+                      </h3>
+                      
+                      <div className="flex space-x-2 sm:space-x-3 text-xs md:text-sm text-gray-400 mt-1">
                         <span>💪 {user.workoutPoints || 0}</span>
                         <span>🥗 {user.dietPoints || 0}</span>
                         <span>✅ {user.taskPoints || 0}</span>
                       </div>
                     </div>
                   </div>
-                  <div className={`text-right ${styles.text}`}>
+
+                  {/* UPDATED: Added shrink-0 so the points never get pushed out of frame */}
+                  <div className={`text-right shrink-0 ml-2 ${styles.text}`}>
                     <div className={`font-black ${isTop3 ? 'text-3xl' : 'text-2xl'} tracking-tighter`}>{user.totalPoints || 0}</div>
                     <div className="text-[10px] md:text-xs uppercase tracking-widest opacity-80">Points</div>
                   </div>
+
                 </div>
               );
             })}

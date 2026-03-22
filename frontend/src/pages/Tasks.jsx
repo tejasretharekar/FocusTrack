@@ -101,7 +101,10 @@ export default function Tasks() {
   const filteredTasks = tasks.filter(t => t.type === activeTab);
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-[#1a0b2e] via-[#121212] to-[#2d1406] flex flex-col items-center p-4 md:p-6 overflow-x-hidden">
+    // UPDATED: Changed w-screen to w-full to prevent horizontal overflow bugs
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#1a0b2e] via-[#121212] to-[#2d1406] flex flex-col items-center p-4 md:p-6 overflow-x-hidden">
+      
+      {/* UPDATED: Navigates to /home instead of / */}
       <div className="w-full max-w-2xl flex items-center mb-6 md:mb-8 mt-2 md:mt-0">
         <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition mr-3 md:mr-4">
           <ArrowLeft size={24} className="md:w-7 md:h-7" />
@@ -129,9 +132,9 @@ export default function Tasks() {
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           placeholder={`Add a new ${activeTab.replace('-', ' ')} task...`}
-          className="flex-1 bg-[#1e1e28] text-white px-3 md:px-4 py-3 text-sm md:text-base rounded-l-xl border border-gray-700 focus:outline-none focus:border-orange-500"
+          className="flex-1 min-w-0 bg-[#1e1e28] text-white px-3 md:px-4 py-3 text-sm md:text-base rounded-l-xl border border-gray-700 focus:outline-none focus:border-orange-500"
         />
-        <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-4 md:px-6 rounded-r-xl transition flex items-center justify-center">
+        <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-4 md:px-6 rounded-r-xl transition flex items-center justify-center shrink-0">
           <Plus size={20} className="md:w-6 md:h-6" />
         </button>
       </form>
@@ -145,8 +148,11 @@ export default function Tasks() {
           <p className="text-center text-gray-500 mt-10 text-sm md:text-base">No tasks in this category. Add one above!</p>
         ) : (
           filteredTasks.map((task) => (
-            <div key={task._id} className="flex items-center justify-between bg-[#1e1e28] p-3 md:p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition shadow-md group">
-              <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
+            // UPDATED: Added gap-3 to give breathing room between text and trash can
+            <div key={task._id} className="flex items-center justify-between bg-[#1e1e28] p-3 md:p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition shadow-md group gap-3">
+              
+              {/* UPDATED: Added flex-1 and min-w-0 to allow internal truncation */}
+              <div className="flex items-center space-x-3 md:space-x-4 flex-1 min-w-0">
                 <button 
                   onClick={() => toggleComplete(task._id, task.isCompleted)}
                   className={`flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-md flex items-center justify-center border transition-all duration-300 ${
@@ -155,11 +161,15 @@ export default function Tasks() {
                 >
                   {task.isCompleted && <Check size={14} className="text-white md:w-4 md:h-4" />}
                 </button>
-                <span className={`text-sm md:text-lg truncate transition-all duration-300 ${task.isCompleted ? 'text-gray-500 line-through' : 'text-white'}`}>
+                
+                {/* UPDATED: Added block, truncate to fix overflow issues */}
+                <span className={`block text-sm md:text-lg truncate transition-all duration-300 ${task.isCompleted ? 'text-gray-500 line-through' : 'text-white'}`}>
                   {task.title}
                 </span>
               </div>
-              <button onClick={() => deleteTask(task._id)} className="text-gray-600 hover:text-red-500 p-2 md:p-0 md:opacity-0 group-hover:opacity-100 transition-all duration-300">
+
+              {/* UPDATED: Added shrink-0 so the trash can never gets squished */}
+              <button onClick={() => deleteTask(task._id)} className="shrink-0 text-gray-600 hover:text-red-500 p-2 md:p-0 md:opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <Trash2 size={18} className="md:w-5 md:h-5" />
               </button>
             </div>
