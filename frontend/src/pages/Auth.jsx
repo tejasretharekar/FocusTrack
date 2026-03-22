@@ -1,7 +1,7 @@
 // frontend/src/pages/Auth.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, AtSign, Lock, User, ArrowRight } from 'lucide-react';
+import { Brain, AtSign, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -14,6 +14,8 @@ export default function Auth() {
     username: '',
     password: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,15 +106,22 @@ export default function Auth() {
           <div className="relative">
             <Lock className="absolute left-4 top-3.5 text-gray-500" size={20} />
             <input
-              type="password"
-              name="password" // <--- ADDED NAME ATTRIBUTE
-              autoComplete="new-password" // <--- TELLS BROWSER NOT TO AUTOFILL OLD PASSWORDS
-              required
+              type={showPassword ? "text" : "password"} 
+              name="password"
+              autoComplete="new-password"
+              required 
               placeholder="Password"
-              value={formData.password}
+              value={formData.password} 
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full bg-[#121212] text-white pl-12 pr-12 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-3.5 text-gray-400 hover:text-white transition-colors focus:outline-none"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           <button type="submit" className="w-full py-4 bg-gradient-to-r from-orange-500 to-purple-500 hover:opacity-90 text-white rounded-xl font-bold flex items-center justify-center transition-opacity shadow-lg mt-4">
