@@ -1,7 +1,7 @@
 // frontend/src/pages/Auth.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, AtSign, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Brain, AtSign, Lock, User, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -52,7 +52,17 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex items-center justify-center p-4 relative">
+      
+      {/* NEW: Back to Landing Button */}
+      <button 
+        onClick={() => navigate('/')} 
+        className="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center transition-colors font-semibold"
+      >
+        <ArrowLeft size={20} className="mr-2" />
+        Back
+      </button>
+
       <div className="w-full max-w-md bg-[#1e1e28] border border-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
 
         {/* Header Section */}
@@ -92,9 +102,9 @@ export default function Auth() {
           <div className="relative">
             <AtSign className="absolute left-4 top-3.5 text-gray-500" size={20} />
             <input
-              type="text" // <--- CHANGED FROM "username" TO "text"
-              name="username" // <--- ADDED NAME ATTRIBUTE
-              autoComplete="off" // <--- ADDED TO PREVENT BROWSER HIJACKING
+              type="text" 
+              name="username" 
+              autoComplete="off" 
               required
               placeholder="Username"
               value={formData.username}

@@ -21,6 +21,13 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// NEW: Handles the root "/" path automatically
+const RootRoute = () => {
+  const token = localStorage.getItem('token');
+  // If logged in, go to dashboard. If not, show landing.
+  return token ? <Navigate to="/home" /> : <Landing />;
+};
+
 // Protects Admin routes specifically
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -43,8 +50,10 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/admin/auth" element={<AdminAuth />} />
         
+        {/* UPDATED: Root route uses RootRoute to redirect logged-in users to /home */}
+        <Route path="/" element={<RootRoute />} />
+        
         {/* Protected User Routes */}
-        <Route path="/" element={<ProtectedRoute><Landing /></ProtectedRoute>} />
         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
         <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />

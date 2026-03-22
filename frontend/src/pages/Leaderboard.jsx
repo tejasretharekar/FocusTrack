@@ -50,7 +50,7 @@ export default function Leaderboard() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
       <div className="w-full max-w-md flex items-center justify-between mb-8 mt-2 md:mt-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition p-2">
+        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
         <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider flex items-center">

@@ -103,7 +103,7 @@ export default function Tasks() {
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-[#1a0b2e] via-[#121212] to-[#2d1406] flex flex-col items-center p-4 md:p-6 overflow-x-hidden">
       <div className="w-full max-w-2xl flex items-center mb-6 md:mb-8 mt-2 md:mt-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition mr-3 md:mr-4">
+        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition mr-3 md:mr-4">
           <ArrowLeft size={24} className="md:w-7 md:h-7" />
         </button>
         <h1 className="text-2xl md:text-3xl font-bold text-white">My Tasks</h1>

@@ -125,7 +125,7 @@ export default function Challenges() {
       
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition p-2">
+        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
         <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider flex items-center">

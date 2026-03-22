@@ -100,7 +100,7 @@ export default function Admin() {
     <div className="min-h-screen w-full bg-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border font-sans relative">
       
       <div className="w-full max-w-4xl flex items-center justify-between mb-8 mt-2 md:mt-0 border-b border-red-900/30 pb-4">
-        <button onClick={() => navigate('/')} className="text-gray-500 hover:text-white transition p-2">
+        <button onClick={() => navigate('/home')} className="text-gray-500 hover:text-white transition p-2">
           <ArrowLeft size={28} />
         </button>
         <h2 className="text-xl md:text-2xl font-black text-white tracking-widest flex items-center">
