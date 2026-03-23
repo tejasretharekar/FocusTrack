@@ -66,3 +66,26 @@ exports.toggleWorkoutCompletion = async (req, res) => {
     res.status(500).json({ message: 'Failed to toggle workout' });
   }
 };
+
+// @desc    Delete an exercise from the plan
+// @route   DELETE /api/workouts/:id
+exports.deleteWorkout = async (req, res) => {
+  try {
+    const workout = await Workout.findById(req.params.id);
+    
+    if (!workout) {
+      return res.status(404).json({ message: 'Workout not found' });
+    }
+    
+    // Ensure the user deleting it actually owns it
+    if (workout.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    await Workout.findByIdAndDelete(req.params.id);
+    
+    res.status(200).json({ message: 'Workout removed successfully', id: req.params.id });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete workout' });
+  }
+};

@@ -11,6 +11,9 @@ export default function Tasks() {
   const [newTask, setNewTask] = useState('');
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // NEW: Track which task is currently expanded
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
 
   const token = localStorage.getItem('token');
 
@@ -61,7 +64,6 @@ export default function Tasks() {
 
   // Toggle Complete
   const toggleComplete = async (id, currentStatus) => {
-    // Optimistic UI update
     setTasks(tasks.map(t => t._id === id ? { ...t, isCompleted: !currentStatus } : t));
 
     try {
@@ -75,14 +77,12 @@ export default function Tasks() {
       });
     } catch (error) {
       console.error('Error updating task', error);
-      // Revert on failure
       setTasks(tasks.map(t => t._id === id ? { ...t, isCompleted: currentStatus } : t));
     }
   };
 
   // Delete Task
   const deleteTask = async (id) => {
-    // Optimistic UI update
     const previousTasks = [...tasks];
     setTasks(tasks.filter(t => t._id !== id));
 
@@ -94,17 +94,20 @@ export default function Tasks() {
       if (!response.ok) throw new Error('Delete failed');
     } catch (error) {
       console.error('Error deleting task', error);
-      setTasks(previousTasks); // Revert on failure
+      setTasks(previousTasks); 
     }
+  };
+
+  // NEW: Toggle text expansion
+  const toggleExpand = (id) => {
+    setExpandedTaskId(prevId => prevId === id ? null : id);
   };
 
   const filteredTasks = tasks.filter(t => t.type === activeTab);
 
   return (
-    // UPDATED: Changed w-screen to w-full to prevent horizontal overflow bugs
     <div className="min-h-screen w-full bg-gradient-to-br from-[#1a0b2e] via-[#121212] to-[#2d1406] flex flex-col items-center p-4 md:p-6 overflow-x-hidden">
       
-      {/* UPDATED: Navigates to /home instead of / */}
       <div className="w-full max-w-2xl flex items-center mb-6 md:mb-8 mt-2 md:mt-0">
         <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition mr-3 md:mr-4">
           <ArrowLeft size={24} className="md:w-7 md:h-7" />
@@ -148,10 +151,8 @@ export default function Tasks() {
           <p className="text-center text-gray-500 mt-10 text-sm md:text-base">No tasks in this category. Add one above!</p>
         ) : (
           filteredTasks.map((task) => (
-            // UPDATED: Added gap-3 to give breathing room between text and trash can
             <div key={task._id} className="flex items-center justify-between bg-[#1e1e28] p-3 md:p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition shadow-md group gap-3">
               
-              {/* UPDATED: Added flex-1 and min-w-0 to allow internal truncation */}
               <div className="flex items-center space-x-3 md:space-x-4 flex-1 min-w-0">
                 <button 
                   onClick={() => toggleComplete(task._id, task.isCompleted)}
@@ -162,13 +163,17 @@ export default function Tasks() {
                   {task.isCompleted && <Check size={14} className="text-white md:w-4 md:h-4" />}
                 </button>
                 
-                {/* UPDATED: Added block, truncate to fix overflow issues */}
-                <span className={`block text-sm md:text-lg truncate transition-all duration-300 ${task.isCompleted ? 'text-gray-500 line-through' : 'text-white'}`}>
+                {/* UPDATED: Dynamic class applied to handle truncation vs full-text display */}
+                <span 
+                  onClick={() => toggleExpand(task._id)}
+                  className={`block text-sm md:text-lg cursor-pointer transition-all duration-300 ${
+                    expandedTaskId === task._id ? 'break-words whitespace-normal' : 'truncate'
+                  } ${task.isCompleted ? 'text-gray-500 line-through' : 'text-white'}`}
+                >
                   {task.title}
                 </span>
               </div>
 
-              {/* UPDATED: Added shrink-0 so the trash can never gets squished */}
               <button onClick={() => deleteTask(task._id)} className="shrink-0 text-gray-600 hover:text-red-500 p-2 md:p-0 md:opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <Trash2 size={18} className="md:w-5 md:h-5" />
               </button>

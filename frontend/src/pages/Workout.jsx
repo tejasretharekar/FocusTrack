@@ -1,18 +1,20 @@
 // frontend/src/pages/Workout.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, CheckCircle2, Circle, Play, Timer, Trophy } from 'lucide-react';
+// Added Trash2 to the imports
+import { ArrowLeft, Plus, CheckCircle2, Circle, Play, Timer, Trophy, Trash2 } from 'lucide-react';
 
 export default function Workout() {
   const navigate = useNavigate();
   const [workouts, setWorkouts] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   
-  // FIXED: Removed points from initial state
   const [newItem, setNewItem] = useState({ name: '', type: 'reps', target: '' });
   
   const [activeTimerId, setActiveTimerId] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  
+  const [expandedWorkoutId, setExpandedWorkoutId] = useState(null);
 
   const today = new Date().toISOString().split('T')[0];
   const token = localStorage.getItem('token') || 'dummy-token';
@@ -33,7 +35,6 @@ export default function Workout() {
 
   useEffect(() => {
     fetchWorkouts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -54,7 +55,6 @@ export default function Workout() {
       }, 500);
     }
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTimerId, timeLeft]);
 
   const handleAddWorkout = async (e) => {
@@ -74,7 +74,6 @@ export default function Workout() {
         setShowAddForm(false);
         fetchWorkouts();
       } else {
-        // DEV MODE BYPASS WITH HARDCODED POINTS CALCULATION
         let calculatedPoints = 0;
         if (newItem.type === 'reps') {
           calculatedPoints = Number(newItem.target);
@@ -125,6 +124,30 @@ export default function Workout() {
     }
   };
 
+  // NEW: Handle Delete Workout
+  const handleDeleteWorkout = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this exercise?")) return;
+    
+    // Optimistic UI update
+    setWorkouts(workouts.filter(w => w._id !== id));
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/workouts/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        // Revert if deletion fails on the server
+        fetchWorkouts();
+        alert("Failed to delete the exercise.");
+      }
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+      fetchWorkouts();
+    }
+  };
+
   const startExerciseTimer = (id, seconds) => {
     setActiveTimerId(id);
     setTimeLeft(seconds);
@@ -133,6 +156,10 @@ export default function Workout() {
   const cancelTimer = () => {
     setActiveTimerId(null);
     setTimeLeft(0);
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedWorkoutId(prevId => prevId === id ? null : id);
   };
 
   const earnedPoints = workouts.reduce((sum, item) => {
@@ -200,7 +227,6 @@ export default function Workout() {
                     <input required type="number" placeholder={newItem.type === 'reps' ? "e.g., 15" : "e.g., 60"} value={newItem.target} onChange={e => setNewItem({...newItem, target: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-focusPurple box-border" />
                   </div>
                 </div>
-                {/* FIXED: The explicit points input field has been entirely removed */}
               </div>
               <button type="submit" className="w-full py-3 bg-focusPurple hover:bg-purple-600 text-white rounded-lg font-bold transition shadow-lg">
                 SAVE EXERCISE
@@ -219,23 +245,31 @@ export default function Workout() {
 
               return (
                 <div key={item._id} className={`flex flex-col p-4 md:p-5 rounded-2xl transition border ${isDone ? 'bg-[#1a1a2e] border-purple-900/50' : 'bg-[#1e1e28] border-gray-800'}`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <h3 className={`font-bold text-lg ${isDone ? 'text-purple-200 line-through opacity-70' : 'text-white'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col flex-1 min-w-0">
+                      
+                      <h3 
+                        onClick={() => toggleExpand(item._id)}
+                        className={`font-bold text-lg cursor-pointer transition-all duration-300 ${
+                          expandedWorkoutId === item._id ? 'break-words whitespace-normal' : 'truncate'
+                        } ${isDone ? 'text-purple-200 line-through opacity-70' : 'text-white'}`}
+                      >
                         {item.name}
                       </h3>
-                      <p className={`text-sm flex items-center mt-1 ${isDone ? 'text-purple-400/60' : 'text-gray-400'}`}>
+                      
+                      <p className={`text-sm flex items-center mt-1 truncate ${isDone ? 'text-purple-400/60' : 'text-gray-400'}`}>
                         {item.type === 'reps' ? (
-                          <><Circle size={14} className="mr-1"/> {item.target} Reps</>
+                          <><Circle size={14} className="mr-1 shrink-0"/> {item.target} Reps</>
                         ) : (
-                          <><Timer size={14} className="mr-1"/> {item.target} Seconds</>
+                          <><Timer size={14} className="mr-1 shrink-0"/> {item.target} Seconds</>
                         )}
                         <span className="mx-2">•</span>
-                        <span className="text-focusPurple">{item.points} pts</span>
+                        <span className="text-focusPurple shrink-0">{item.points} pts</span>
                       </p>
                     </div>
 
-                    <div className="flex items-center">
+                    {/* UPDATED: Added a gap and the Trash icon here */}
+                    <div className="flex items-center gap-3 shrink-0">
                       {item.type === 'reps' || isDone ? (
                         <button onClick={() => handleToggle(item._id)} className={`transition-colors ${isDone ? 'text-focusPurple' : 'text-gray-500 hover:text-focusPurple'}`}>
                           {isDone ? <CheckCircle2 size={32} /> : <Circle size={32} />}
@@ -247,6 +281,13 @@ export default function Workout() {
                           </button>
                         )
                       )}
+                      
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDeleteWorkout(item._id); }} 
+                        className="text-gray-600 hover:text-red-500 transition-colors p-1"
+                      >
+                        <Trash2 size={24} />
+                      </button>
                     </div>
                   </div>
 

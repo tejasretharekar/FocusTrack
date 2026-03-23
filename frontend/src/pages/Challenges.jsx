@@ -6,14 +6,17 @@ import { ArrowLeft, Swords, Plus, User, Users, Check, X, ShieldAlert } from 'luc
 export default function Challenges() {
   const navigate = useNavigate();
   const [challenges, setChallenges] = useState([]);
-  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'pending'
+  const [activeTab, setActiveTab] = useState('active'); 
   const [showAddForm, setShowAddForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const [newChallenge, setNewChallenge] = useState({ title: '', type: 'personal', targetDays: '', opponentEmail: '' });
 
+  // NEW: State for expanding long challenge titles
+  const [expandedChallengeId, setExpandedChallengeId] = useState(null);
+
   const token = localStorage.getItem('token') || 'dummy-token';
-  const myMockId = 'my-id'; // Used to determine if we are the creator or opponent in dev mode
+  const myMockId = 'my-id'; 
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -30,7 +33,7 @@ export default function Challenges() {
             loadMockData();
           }
         } else {
-          loadMockData(); // Dev mode bypass
+          loadMockData(); 
         }
       } catch (error) {
         console.error('Failed to fetch challenges', error);
@@ -73,9 +76,7 @@ export default function Challenges() {
       if (response.ok) {
         setNewChallenge({ title: '', type: 'personal', targetDays: '', opponentEmail: '' });
         setShowAddForm(false);
-        // fetchChallenges(); -> In a real app we'd refetch
       } else {
-        // DEV MODE BYPASS
         const mockNew = {
           _id: Date.now().toString(),
           title: newChallenge.title,
@@ -96,7 +97,6 @@ export default function Challenges() {
   };
 
   const handleUpdateProgress = async (id) => {
-    // Optimistic UI update
     setChallenges(chals => chals.map(c => {
       if (c._id === id) {
         const isCreator = c.creator._id === myMockId;
@@ -105,16 +105,18 @@ export default function Challenges() {
       }
       return c;
     }));
-    // Real app would send PUT to /api/challenges/:id/progress here
   };
 
   const handleAcceptInvite = async (id) => {
     setChallenges(chals => chals.map(c => c._id === id ? { ...c, status: 'active' } : c));
     setActiveTab('active');
-    // Real app would send PUT to /api/challenges/:id/accept here
   };
 
-  // Filter logic
+  // NEW: Toggle text expansion function
+  const toggleExpand = (id) => {
+    setExpandedChallengeId(prevId => prevId === id ? null : id);
+  };
+
   const activeChallenges = challenges.filter(c => c.status === 'active' || c.status === 'completed');
   const pendingInvites = challenges.filter(c => c.status === 'pending' && c.opponent?._id === myMockId);
 
@@ -123,7 +125,6 @@ export default function Challenges() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
       
-      {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
         <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
@@ -137,7 +138,6 @@ export default function Challenges() {
 
       <div className="w-full max-w-md flex-1 flex flex-col pb-12">
         
-        {/* Custom Tab Switcher */}
         <div className="flex bg-[#1e1e28] rounded-xl p-1 mb-6 border border-gray-800">
           <button 
             onClick={() => setActiveTab('active')}
@@ -156,7 +156,6 @@ export default function Challenges() {
           </button>
         </div>
 
-        {/* Add Challenge Section (Only in Active Tab) */}
         {activeTab === 'active' && (
           <div className="mb-6">
             <button 
@@ -204,11 +203,9 @@ export default function Challenges() {
           </div>
         )}
 
-        {/* Content Area */}
         {isLoading ? (
           <div className="flex justify-center mt-10"><div className="w-8 h-8 border-4 border-focusPurple border-t-transparent rounded-full animate-spin"></div></div>
         ) : activeTab === 'active' ? (
-          /* ACTIVE CHALLENGES LIST */
           <div className="space-y-4">
             {activeChallenges.length === 0 ? (
               <p className="text-center text-gray-500 mt-10">No active challenges. Push yourself and start one!</p>
@@ -221,26 +218,37 @@ export default function Challenges() {
 
                 return (
                   <div key={chal._id} className="bg-[#1a1a24] border border-purple-900/40 rounded-2xl p-5 shadow-lg relative overflow-hidden">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-white leading-tight">{chal.title}</h3>
-                        <div className="flex items-center text-xs text-gray-400 mt-1">
-                          {chal.type === 'personal' ? <><User size={12} className="mr-1"/> Personal</> : <><Users size={12} className="mr-1"/> VS {opponentName}</>}
+                    {/* UPDATED: Added gap-3 and min-w-0 for safe layout */}
+                    <div className="flex justify-between items-start mb-4 gap-3">
+                      <div className="flex-1 min-w-0">
+                        
+                        {/* UPDATED: Added click handler and dynamic truncation */}
+                        <h3 
+                          onClick={() => toggleExpand(chal._id)}
+                          className={`text-lg font-bold text-white leading-tight cursor-pointer transition-all duration-300 ${
+                            expandedChallengeId === chal._id ? 'break-words whitespace-normal' : 'truncate'
+                          }`}
+                        >
+                          {chal.title}
+                        </h3>
+                        
+                        <div className="flex items-center text-xs text-gray-400 mt-1 truncate">
+                          {chal.type === 'personal' ? <><User size={12} className="mr-1 shrink-0"/> Personal</> : <><Users size={12} className="mr-1 shrink-0"/> VS {opponentName}</>}
                         </div>
                       </div>
+                      
                       {myProgress < chal.targetDays ? (
                         <button 
                           onClick={() => handleUpdateProgress(chal._id)}
-                          className="px-3 py-1 bg-purple-600/20 hover:bg-purple-600/40 text-focusPurple border border-focusPurple rounded-lg text-sm font-bold transition-colors"
+                          className="shrink-0 px-3 py-1 bg-purple-600/20 hover:bg-purple-600/40 text-focusPurple border border-focusPurple rounded-lg text-sm font-bold transition-colors"
                         >
                           +1 DAY
                         </button>
                       ) : (
-                        <span className="text-green-500 font-bold text-sm bg-green-500/10 px-3 py-1 rounded-lg">DONE!</span>
+                        <span className="shrink-0 text-green-500 font-bold text-sm bg-green-500/10 px-3 py-1 rounded-lg">DONE!</span>
                       )}
                     </div>
 
-                    {/* Progress Visuals */}
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between text-xs mb-1">
@@ -255,8 +263,8 @@ export default function Challenges() {
                       {chal.type === 'friend' && (
                         <div>
                           <div className="flex justify-between text-xs mb-1 opacity-70">
-                            <span className="text-gray-400">{opponentName}</span>
-                            <span className="text-blue-400">{theirProgress} / {chal.targetDays}</span>
+                            <span className="text-gray-400 truncate pr-2">{opponentName}</span>
+                            <span className="text-blue-400 shrink-0">{theirProgress} / {chal.targetDays}</span>
                           </div>
                           <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden opacity-70">
                             <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${calcPercent(theirProgress, chal.targetDays)}%` }}></div>
@@ -270,7 +278,6 @@ export default function Challenges() {
             )}
           </div>
         ) : (
-          /* PENDING INVITES LIST */
           <div className="space-y-4">
             {pendingInvites.length === 0 ? (
               <div className="flex flex-col items-center justify-center mt-10 text-gray-500">
@@ -281,7 +288,17 @@ export default function Challenges() {
               pendingInvites.map(chal => (
                 <div key={chal._id} className="bg-[#1e1e28] border border-orange-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500 opacity-5 rounded-bl-full"></div>
-                  <h3 className="text-lg font-bold text-white mb-1">{chal.title}</h3>
+                  
+                  {/* UPDATED: Added click handler and dynamic truncation for invites */}
+                  <h3 
+                    onClick={() => toggleExpand(chal._id)}
+                    className={`text-lg font-bold text-white mb-1 cursor-pointer transition-all duration-300 ${
+                      expandedChallengeId === chal._id ? 'break-words whitespace-normal' : 'truncate'
+                    }`}
+                  >
+                    {chal.title}
+                  </h3>
+                  
                   <p className="text-sm text-gray-400 mb-4"><span className="text-orange-400 font-semibold">{chal.creator.name}</span> challenged you to {chal.targetDays} days!</p>
                   
                   <div className="flex space-x-3">

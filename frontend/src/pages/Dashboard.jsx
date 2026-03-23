@@ -1,7 +1,7 @@
 // frontend/src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BarChart3, CheckSquare, Flame, Dumbbell, User } from 'lucide-react'; // Added User icon
+import { ArrowLeft, BarChart3, CheckSquare, Flame, Dumbbell, User } from 'lucide-react'; 
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -13,10 +13,11 @@ export default function Dashboard() {
     diet: { total: 0, completedToday: 0 }
   });
   const [isLoading, setIsLoading] = useState(true);
+  
+  // NEW: State for expanding long user profile info
+  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
 
   const token = localStorage.getItem('token');
-  
-  // 1. Safely parse user data from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
@@ -54,7 +55,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
       
-      {/* UPDATED: Navigates to /home instead of / */}
       <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
         <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
@@ -67,16 +67,27 @@ export default function Dashboard() {
 
       <div className="w-full max-w-md flex-1 flex flex-col pb-12">
         
-        {/* 2. User Profile Header added here - UPDATED with min-w-0 for truncating long names */}
+        {/* UPDATED: Profile Header with expandable text functionality */}
         <div className="bg-[#1e1e28] border border-gray-800 rounded-3xl p-5 md:p-6 mb-6 flex items-center space-x-4 md:space-x-5 shadow-lg min-w-0">
           <div className="bg-gradient-to-br from-orange-500 to-purple-500 p-1 rounded-full shrink-0">
             <div className="bg-[#121212] p-2 md:p-3 rounded-full">
               <User size={28} className="text-white md:w-8 md:h-8" />
             </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl md:text-2xl font-black text-white tracking-wide truncate">{user.name || 'User'}</h2>
-            <p className="text-purple-400 font-medium tracking-wider text-xs md:text-sm truncate">@{user.username || 'username'}</p>
+          <div 
+            className="min-w-0 flex-1 cursor-pointer" 
+            onClick={() => setIsProfileExpanded(!isProfileExpanded)}
+          >
+            <h2 className={`text-xl md:text-2xl font-black text-white tracking-wide transition-all ${
+              isProfileExpanded ? 'break-words whitespace-normal' : 'truncate'
+            }`}>
+              {user.name || 'User'}
+            </h2>
+            <p className={`text-purple-400 font-medium tracking-wider text-xs md:text-sm mt-1 transition-all ${
+              isProfileExpanded ? 'break-words whitespace-normal' : 'truncate'
+            }`}>
+              @{user.username || 'username'}
+            </p>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
-// backend/routes/workoutRoutes.js
 const express = require('express');
-const { getWorkouts, addWorkout, toggleWorkoutCompletion } = require('../controllers/workoutController');
+// Added deleteWorkout here
+const { getWorkouts, addWorkout, toggleWorkoutCompletion, deleteWorkout } = require('../controllers/workoutController');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -11,5 +11,9 @@ router.route('/')
 
 router.route('/:id/toggle')
   .put(protect, toggleWorkoutCompletion);
+
+// NEW: Added the delete route
+router.route('/:id')
+  .delete(protect, deleteWorkout);
 
 module.exports = router;

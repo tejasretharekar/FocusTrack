@@ -12,6 +12,10 @@ export default function Diet() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [newItem, setNewItem] = useState({ name: '', quantity: '', unit: '', calories: '' });
+  
+  // NEW: State for text expansion
+  const [expandedDietId, setExpandedDietId] = useState(null);
+  
   const today = new Date().toISOString().split('T')[0];
   const token = localStorage.getItem('token'); 
 
@@ -59,7 +63,6 @@ export default function Diet() {
   };
 
   const handleToggle = async (id) => {
-    // Optimistic UI update
     setDietItems(items => items.map(item => {
       if (item._id === id) {
         const isDone = item.completedDates.includes(today);
@@ -82,16 +85,15 @@ export default function Diet() {
       });
     } catch (error) {
       console.error('Failed to toggle', error);
-      fetchDiet(); // Revert on failure
+      fetchDiet(); 
     }
   };
 
   const handleDelete = async (e, id) => {
-    e.stopPropagation(); // Prevents the item from toggling completion when clicking the trash can
+    e.stopPropagation(); 
     
     if (!window.confirm("Are you sure you want to delete this diet item?")) return;
 
-    // Optimistic UI update
     const previousItems = [...dietItems];
     setDietItems(dietItems.filter(item => item._id !== id));
 
@@ -104,8 +106,14 @@ export default function Diet() {
       if (!response.ok) throw new Error('Delete failed');
     } catch (error) {
       console.error('Failed to delete item', error);
-      setDietItems(previousItems); // Revert on failure
+      setDietItems(previousItems);
     }
+  };
+
+  // NEW: Toggle text expansion independently of marking complete
+  const toggleExpand = (e, id) => {
+    e.stopPropagation(); // Prevents the outer div's handleToggle from firing
+    setExpandedDietId(prevId => prevId === id ? null : id);
   };
 
   const totalCalories = dietItems.reduce((sum, item) => sum + Number(item.calories), 0);
@@ -116,7 +124,6 @@ export default function Diet() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a1a24] to-[#0d1b1e] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
       
-      {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
         <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
           <ArrowLeft size={28} />
@@ -127,7 +134,6 @@ export default function Diet() {
 
       <div className="w-full max-w-md flex-1 flex flex-col pb-12">
         
-        {/* Calorie Summary Card */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 shadow-xl mb-8 flex items-center justify-between">
           <div>
             <p className="text-orange-100 text-sm font-medium mb-1 uppercase tracking-wider">Today's Calories</p>
@@ -140,7 +146,6 @@ export default function Diet() {
           </div>
         </div>
 
-        {/* Add Button & Form */}
         <div className="mb-6">
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
@@ -179,7 +184,6 @@ export default function Diet() {
           )}
         </div>
 
-        {/* Diet List */}
         <div className="space-y-3">
           {isLoading ? (
             <div className="flex justify-center py-10">
@@ -194,30 +198,39 @@ export default function Diet() {
                 <div 
                   key={item._id}
                   onClick={() => handleToggle(item._id)}
-                  className={`group flex items-center justify-between p-4 md:p-5 rounded-2xl cursor-pointer transition border ${isDone ? 'bg-[#1a2e20] border-green-900/50' : 'bg-[#1e1e28] border-gray-800 hover:border-gray-600'}`}
+                  // UPDATED: Added gap-3
+                  className={`group flex items-center justify-between gap-3 p-4 md:p-5 rounded-2xl cursor-pointer transition border ${isDone ? 'bg-[#1a2e20] border-green-900/50' : 'bg-[#1e1e28] border-gray-800 hover:border-gray-600'}`}
                 >
-                  <div className="flex items-center">
-                    <button className={`mr-4 transition-colors ${isDone ? 'text-green-500' : 'text-gray-500 hover:text-orange-500'}`}>
+                  {/* UPDATED: flex-1 min-w-0 for bounding truncation */}
+                  <div className="flex items-center flex-1 min-w-0 mr-2">
+                    <button className={`mr-3 md:mr-4 shrink-0 transition-colors ${isDone ? 'text-green-500' : 'text-gray-500 hover:text-orange-500'}`}>
                       {isDone ? <CheckCircle2 size={28} /> : <Circle size={28} />}
                     </button>
-                    <div>
-                      <h3 className={`font-bold text-lg ${isDone ? 'text-green-100 line-through opacity-70' : 'text-white'}`}>
+                    <div className="flex-1 min-w-0">
+                      
+                      {/* UPDATED: Added click handler with e.stopPropagation(), and truncation classes */}
+                      <h3 
+                        onClick={(e) => toggleExpand(e, item._id)}
+                        className={`font-bold text-lg transition-all duration-300 ${
+                          expandedDietId === item._id ? 'break-words whitespace-normal' : 'truncate'
+                        } ${isDone ? 'text-green-100 line-through opacity-70' : 'text-white'}`}
+                      >
                         {item.name}
                       </h3>
-                      <p className={`text-sm ${isDone ? 'text-green-400/60' : 'text-gray-400'}`}>
+                      
+                      <p className={`text-sm truncate ${isDone ? 'text-green-400/60' : 'text-gray-400'}`}>
                         {item.quantity} {item.unit}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 md:space-x-4 shrink-0">
                     <div className={`font-semibold ${isDone ? 'text-green-500/70' : 'text-orange-500'}`}>
                       {item.calories} <span className="text-xs font-normal opacity-70">kcal</span>
                     </div>
-                    {/* Delete Button - Appears on hover for desktop */}
                     <button 
                       onClick={(e) => handleDelete(e, item._id)}
-                      className="text-gray-600 hover:text-red-500 p-2 md:opacity-0 group-hover:opacity-100 transition-all duration-300"
+                      className="text-gray-600 hover:text-red-500 p-2 md:p-0 md:opacity-0 group-hover:opacity-100 transition-all duration-300"
                     >
                       <Trash2 size={20} />
                     </button>
