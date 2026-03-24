@@ -133,7 +133,7 @@ export default function Admin() {
               </div>
               <div className="bg-gradient-to-br from-[#1a0505] to-[#121212] border border-red-900/40 rounded-xl p-6 flex items-center justify-between shadow-lg">
                 <div>
-                  <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">Active Now</p>
+                  <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1">Active Challenges</p>
                   <p className="text-3xl font-black text-white">{stats.activeChallenges || 0}</p>
                 </div>
                 <Activity size={32} className="text-red-500 animate-pulse" />
