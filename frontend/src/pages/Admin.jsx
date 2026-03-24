@@ -142,10 +142,8 @@ export default function Admin() {
 
             <h3 className="text-lg font-bold text-gray-300 tracking-wider mb-4 uppercase">User Management</h3>
             
-            {/* UPDATED: Added overflow-x-auto to make the table scroll horizontally on mobile */}
             <div className="bg-[#121212] border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
               <div className="overflow-x-auto w-full">
-                {/* Enforces a minimum width so columns don't squish */}
                 <div className="min-w-[700px]">
                   
                   {/* Table Header */}
@@ -171,7 +169,7 @@ export default function Admin() {
                             <span className="font-bold text-gray-200 truncate">{user.name}</span>
                           </div>
                           <div className="col-span-4 text-sm text-gray-400 truncate pointer-events-none">
-                            {user.email}
+                            {user.email || user.username}
                           </div>
                           <div className="col-span-2 text-sm text-gray-500 pointer-events-none">
                             {user.createdAt ? user.createdAt.split('T')[0] : 'N/A'}
@@ -204,6 +202,7 @@ export default function Admin() {
         )}
       </div>
 
+      {/* DETAILED USER MODAL */}
       {selectedUserDetails && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-[#121212] border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
@@ -211,7 +210,7 @@ export default function Admin() {
             <div className="sticky top-0 bg-[#121212] border-b border-gray-800 p-6 flex justify-between items-center z-10">
               <div>
                 <h2 className="text-2xl font-bold text-white truncate max-w-[200px] sm:max-w-xs">{selectedUserDetails.user.name}</h2>
-                <p className="text-gray-400 text-sm truncate max-w-[200px] sm:max-w-xs">{selectedUserDetails.user.email}</p>
+                <p className="text-gray-400 text-sm truncate max-w-[200px] sm:max-w-xs">{selectedUserDetails.user.email || selectedUserDetails.user.username}</p>
               </div>
               <button onClick={closeModal} className="text-gray-500 hover:text-white bg-gray-800/50 hover:bg-gray-700 p-2 rounded-full transition">
                 <X size={24} />
@@ -224,6 +223,7 @@ export default function Admin() {
               ) : (
                 <div className="space-y-6 animate-fade-in">
                   
+                  {/* Kept all stats so you still know how heavily they use the app */}
                   <div className="flex items-center text-red-400 font-bold uppercase tracking-widest text-sm mb-2 border-b border-red-900/30 pb-2">
                     <Database size={16} className="mr-2" /> Database Footprint
                   </div>
@@ -245,6 +245,51 @@ export default function Admin() {
                       <p className="text-gray-500 text-xs font-bold uppercase mb-1">Challenges</p>
                       <p className="text-2xl font-black text-white">{selectedUserDetails.stats.totalChallenges || 0}</p>
                     </div>
+                  </div>
+
+                  {/* MODERATION LISTS: Only Tasks and Challenges shown now */}
+                  <div className="mt-6 space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                    
+                    {/* Tasks List */}
+                    {selectedUserDetails.tasks?.length > 0 && (
+                      <div className="bg-[#1a1a1a] rounded-lg p-4 border border-gray-800">
+                        <h4 className="text-white font-bold mb-3 border-b border-gray-700 pb-2">User Tasks</h4>
+                        <ul className="space-y-2">
+                          {selectedUserDetails.tasks.map(task => (
+                            <li key={task._id} className="text-sm text-gray-400 flex justify-between">
+                              <span className="break-words mr-4">{task.title || task.name || task.text || 'Unnamed Task'}</span>
+                              <span className={`shrink-0 ${task.completed ? "text-green-500" : "text-yellow-500"}`}>
+                                {task.completed ? 'Done' : 'Pending'}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Challenges List (Replaced Workouts) */}
+                    {selectedUserDetails.challenges?.length > 0 && (
+                      <div className="bg-[#1a1a1a] rounded-lg p-4 border border-gray-800">
+                        <h4 className="text-white font-bold mb-3 border-b border-gray-700 pb-2">User Challenges</h4>
+                        <ul className="space-y-2">
+                          {selectedUserDetails.challenges.map(challenge => (
+                            <li key={challenge._id} className="text-sm text-gray-400 flex justify-between">
+                              <span className="break-words mr-4">{challenge.title || challenge.name || challenge.description || 'Unnamed Challenge'}</span>
+                              <span className="shrink-0 text-blue-400 capitalize">
+                                {challenge.status || 'Active'}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Empty state if nothing to moderate */}
+                    {(!selectedUserDetails.tasks?.length && !selectedUserDetails.challenges?.length) && (
+                      <div className="text-center p-4 text-gray-500 italic border border-gray-800 rounded-lg">
+                        No active tasks or challenges to moderate for this user.
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-8 bg-red-900/10 border border-red-900/30 rounded-xl p-5">
