@@ -1,7 +1,7 @@
 // frontend/src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BarChart3, CheckSquare, Flame, Dumbbell, User } from 'lucide-react'; 
+import { ArrowLeft, Activity, CheckSquare, Flame, Dumbbell } from 'lucide-react'; 
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -13,8 +13,6 @@ export default function Dashboard() {
     diet: { total: 0, completedToday: 0 }
   });
   const [isLoading, setIsLoading] = useState(true);
-  
-  // NEW: State for expanding long user profile info
   const [isProfileExpanded, setIsProfileExpanded] = useState(false);
 
   const token = localStorage.getItem('token');
@@ -30,8 +28,6 @@ export default function Dashboard() {
         if (response.ok) {
           const data = await response.json();
           setStats(data);
-        } else {
-          console.error('Failed to fetch stats');
         }
       } catch (error) {
         console.error('Network error', error);
@@ -53,102 +49,111 @@ export default function Dashboard() {
   const overallProgress = calcPercent(totalCompleted, totalItems);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
+    // Pure black background, stark white text
+    <div className="min-h-screen w-full bg-black text-[#EDEDED] flex flex-col items-center p-6 font-sans">
       
-      <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
-        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
-          <ArrowLeft size={28} />
+      {/* Minimalist Header */}
+      <div className="w-full max-w-md flex items-center justify-between pb-6 border-b border-[#222]">
+        <button onClick={() => navigate('/home')} className="text-[#888] hover:text-white transition-colors duration-200">
+          <ArrowLeft size={24} strokeWidth={1.5} />
         </button>
-        <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider flex items-center">
-          <BarChart3 className="text-purple-500 mr-2" size={24} /> DAILY REVIEW
+        <h2 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">
+          Daily Review
         </h2>
-        <div className="w-10"></div>
+        <div className="w-6"></div> {/* Spacer for alignment */}
       </div>
 
-      <div className="w-full max-w-md flex-1 flex flex-col pb-12">
+      <div className="w-full max-w-md flex-1 flex flex-col pt-8 pb-12">
         
-        {/* UPDATED: Profile Header with expandable text functionality */}
-        <div className="bg-[#1e1e28] border border-gray-800 rounded-3xl p-5 md:p-6 mb-6 flex items-center space-x-4 md:space-x-5 shadow-lg min-w-0">
-          <div className="bg-gradient-to-br from-orange-500 to-purple-500 p-1 rounded-full shrink-0">
-            <div className="bg-[#121212] p-2 md:p-3 rounded-full">
-              <User size={28} className="text-white md:w-8 md:h-8" />
-            </div>
+        {/* Profile Section - Stripped of borders and background cards */}
+        <div 
+          className="flex items-center space-x-4 mb-12 cursor-pointer group"
+          onClick={() => setIsProfileExpanded(!isProfileExpanded)}
+        >
+          <div className="w-12 h-12 bg-[#111] border border-[#333] rounded-full flex items-center justify-center group-hover:border-white transition-colors duration-300">
+            <Activity size={20} className="text-white" strokeWidth={1.5} />
           </div>
-          <div 
-            className="min-w-0 flex-1 cursor-pointer" 
-            onClick={() => setIsProfileExpanded(!isProfileExpanded)}
-          >
-            <h2 className={`text-xl md:text-2xl font-black text-white tracking-wide transition-all ${
+          <div className="min-w-0 flex-1">
+            <h2 className={`text-2xl font-normal tracking-tight transition-all ${
               isProfileExpanded ? 'break-words whitespace-normal' : 'truncate'
             }`}>
               {user.name || 'User'}
             </h2>
-            <p className={`text-purple-400 font-medium tracking-wider text-xs md:text-sm mt-1 transition-all ${
-              isProfileExpanded ? 'break-words whitespace-normal' : 'truncate'
-            }`}>
+            <p className="text-[#666] text-sm mt-1">
               @{user.username || 'username'}
             </p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex-1 flex justify-center items-center mt-12">
-            <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex-1 flex justify-center items-center">
+            <div className="w-6 h-6 border-2 border-[#333] border-t-white rounded-full animate-spin"></div>
           </div>
         ) : (
           <>
-            <div className="bg-[#1e1e28] border border-purple-900/50 rounded-3xl p-8 shadow-2xl mb-8 flex flex-col items-center justify-center relative overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500 opacity-10 rounded-full blur-3xl"></div>
-              <h3 className="text-purple-200 text-sm font-semibold uppercase tracking-widest mb-4 text-center">Overall Completion</h3>
-              <div className="flex items-baseline space-x-1 mb-2">
-                <span className="text-6xl font-black text-white tracking-tighter">{overallProgress}</span>
-                <span className="text-2xl text-purple-500 font-bold">%</span>
+            {/* Overall Progress - Massive Typography instead of a Card */}
+            <div className="mb-16">
+              <p className="text-[#666] text-xs uppercase tracking-widest mb-2">Total Completion</p>
+              <div className="flex items-end space-x-2">
+                <span className="text-8xl font-light tracking-tighter leading-none">{overallProgress}</span>
+                <span className="text-2xl text-[#666] mb-2">%</span>
               </div>
-              <p className="text-gray-400 text-sm text-center">{totalCompleted} of {totalItems} goals crushed today</p>
-              <div className="w-full h-3 bg-gray-800 rounded-full mt-6 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-1000 ease-out" style={{ width: `${overallProgress}%` }}></div>
+              
+              {/* Ultra-thin, elegant progress line */}
+              <div className="w-full h-[1px] bg-[#222] mt-8 relative">
+                <div 
+                  className="absolute top-0 left-0 h-[1px] bg-white transition-all duration-1000 ease-out" 
+                  style={{ width: `${overallProgress}%` }}
+                >
+                  {/* Subtle glowing dot at the end of the progress line */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]"></div>
+                </div>
               </div>
+              <p className="text-[#666] text-sm mt-4">{totalCompleted} of {totalItems} objectives met</p>
             </div>
 
-            <h3 className="text-lg font-bold text-white tracking-wide mb-4 pl-1">Category Breakdown</h3>
-            <div className="space-y-4">
+            {/* Categories - Ledger Style (No Cards, Just Lines) */}
+            <div className="space-y-6">
               
-              <div className="bg-[#1a1a24] border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-blue-500/20 p-2 rounded-lg text-blue-400 shrink-0"><CheckSquare size={20} /></div>
-                    <span className="font-semibold text-gray-200">Tasks</span>
+              {/* Task Row */}
+              <div className="group">
+                <div className="flex justify-between items-end mb-2">
+                  <div className="flex items-center space-x-3 text-[#888] group-hover:text-white transition-colors">
+                    <CheckSquare size={16} strokeWidth={1.5} />
+                    <span className="text-sm font-medium tracking-wide">Tasks</span>
                   </div>
-                  <span className="text-white font-bold shrink-0">{stats.tasks?.completedToday || 0} / {stats.tasks?.total || 0}</span>
+                  <span className="text-xl font-light">{stats.tasks?.completedToday || 0}<span className="text-[#444] text-sm ml-1">/ {stats.tasks?.total || 0}</span></span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${calcPercent(stats.tasks?.completedToday, stats.tasks?.total)}%` }}></div>
+                <div className="w-full h-[2px] bg-[#111] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#555] group-hover:bg-white transition-all duration-700" style={{ width: `${calcPercent(stats.tasks?.completedToday, stats.tasks?.total)}%` }}></div>
                 </div>
               </div>
 
-              <div className="bg-[#1a1a24] border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-purple-500/20 p-2 rounded-lg text-purple-500 shrink-0"><Dumbbell size={20} /></div>
-                    <span className="font-semibold text-gray-200">Workouts</span>
+              {/* Workout Row */}
+              <div className="group">
+                <div className="flex justify-between items-end mb-2">
+                  <div className="flex items-center space-x-3 text-[#888] group-hover:text-white transition-colors">
+                    <Dumbbell size={16} strokeWidth={1.5} />
+                    <span className="text-sm font-medium tracking-wide">Workouts</span>
                   </div>
-                  <span className="text-white font-bold shrink-0">{stats.workouts?.completedToday || 0} / {stats.workouts?.total || 0}</span>
+                  <span className="text-xl font-light">{stats.workouts?.completedToday || 0}<span className="text-[#444] text-sm ml-1">/ {stats.workouts?.total || 0}</span></span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-purple-500 rounded-full transition-all duration-1000" style={{ width: `${calcPercent(stats.workouts?.completedToday, stats.workouts?.total)}%` }}></div>
+                <div className="w-full h-[2px] bg-[#111] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#555] group-hover:bg-white transition-all duration-700" style={{ width: `${calcPercent(stats.workouts?.completedToday, stats.workouts?.total)}%` }}></div>
                 </div>
               </div>
 
-              <div className="bg-[#1a1a24] border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors">
-                <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-orange-500/20 p-2 rounded-lg text-orange-500 shrink-0"><Flame size={20} /></div>
-                    <span className="font-semibold text-gray-200">Diet</span>
+              {/* Diet Row */}
+              <div className="group">
+                <div className="flex justify-between items-end mb-2">
+                  <div className="flex items-center space-x-3 text-[#888] group-hover:text-white transition-colors">
+                    <Flame size={16} strokeWidth={1.5} />
+                    <span className="text-sm font-medium tracking-wide">Diet</span>
                   </div>
-                  <span className="text-white font-bold shrink-0">{stats.diet?.completedToday || 0} / {stats.diet?.total || 0}</span>
+                  <span className="text-xl font-light">{stats.diet?.completedToday || 0}<span className="text-[#444] text-sm ml-1">/ {stats.diet?.total || 0}</span></span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-orange-500 rounded-full transition-all duration-1000" style={{ width: `${calcPercent(stats.diet?.completedToday, stats.diet?.total)}%` }}></div>
+                <div className="w-full h-[2px] bg-[#111] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#555] group-hover:bg-white transition-all duration-700" style={{ width: `${calcPercent(stats.diet?.completedToday, stats.diet?.total)}%` }}></div>
                 </div>
               </div>
 

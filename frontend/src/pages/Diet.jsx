@@ -1,7 +1,7 @@
 // frontend/src/pages/Diet.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, CheckCircle2, Circle, Flame, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, CheckCircle2, Circle, Trash2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
 
@@ -10,187 +10,116 @@ export default function Diet() {
   const [dietItems, setDietItems] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
   const [newItem, setNewItem] = useState({ name: '', quantity: '', unit: '', calories: '' });
-  
-  // NEW: State for text expansion
   const [expandedDietId, setExpandedDietId] = useState(null);
   
   const today = new Date().toISOString().split('T')[0];
   const token = localStorage.getItem('token'); 
 
+  // ... (Keep all existing logic exactly the same: fetchDiet, handleAddItem, handleToggle, handleDelete, toggleExpand)
   const fetchDiet = async () => {
     try {
-      const response = await fetch(`${API_URL}/diet`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setDietItems(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch diet items', error);
-    } finally {
-      setIsLoading(false);
-    }
+      const response = await fetch(`${API_URL}/diet`, { headers: { Authorization: `Bearer ${token}` } });
+      if (response.ok) { setDietItems(await response.json()); }
+    } catch (error) { console.error(error); } finally { setIsLoading(false); }
   };
-
-  useEffect(() => {
-    if (token) fetchDiet();
-  }, [token]);
+  useEffect(() => { if (token) fetchDiet(); }, [token]);
 
   const handleAddItem = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_URL}/diet`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(newItem)
-      });
-      
-      if (response.ok) {
-        const addedItem = await response.json();
-        setDietItems([...dietItems, addedItem]);
-        setNewItem({ name: '', quantity: '', unit: '', calories: '' });
-        setShowAddForm(false);
-      }
-    } catch (error) {
-      console.error('Failed to add item', error);
-    }
+      const response = await fetch(`${API_URL}/diet`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(newItem) });
+      if (response.ok) { setDietItems([...dietItems, await response.json()]); setNewItem({ name: '', quantity: '', unit: '', calories: '' }); setShowAddForm(false); }
+    } catch (error) { console.error(error); }
   };
 
   const handleToggle = async (id) => {
     setDietItems(items => items.map(item => {
-      if (item._id === id) {
-        const isDone = item.completedDates.includes(today);
-        const updatedDates = isDone 
-          ? item.completedDates.filter(d => d !== today) 
-          : [...item.completedDates, today];
-        return { ...item, completedDates: updatedDates };
-      }
-      return item;
+      if (item._id === id) { return { ...item, completedDates: item.completedDates.includes(today) ? item.completedDates.filter(d => d !== today) : [...item.completedDates, today] }; } return item;
     }));
-
-    try {
-      await fetch(`${API_URL}/diet/${id}/toggle`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ date: today })
-      });
-    } catch (error) {
-      console.error('Failed to toggle', error);
-      fetchDiet(); 
-    }
+    try { await fetch(`${API_URL}/diet/${id}/toggle`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ date: today }) }); } catch (error) { fetchDiet(); }
   };
 
   const handleDelete = async (e, id) => {
     e.stopPropagation(); 
-    
     if (!window.confirm("Are you sure you want to delete this diet item?")) return;
-
     const previousItems = [...dietItems];
     setDietItems(dietItems.filter(item => item._id !== id));
-
     try {
-      const response = await fetch(`${API_URL}/diet/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      const response = await fetch(`${API_URL}/diet/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
       if (!response.ok) throw new Error('Delete failed');
-    } catch (error) {
-      console.error('Failed to delete item', error);
-      setDietItems(previousItems);
-    }
+    } catch (error) { setDietItems(previousItems); }
   };
 
-  // NEW: Toggle text expansion independently of marking complete
-  const toggleExpand = (e, id) => {
-    e.stopPropagation(); // Prevents the outer div's handleToggle from firing
-    setExpandedDietId(prevId => prevId === id ? null : id);
-  };
+  const toggleExpand = (e, id) => { e.stopPropagation(); setExpandedDietId(prevId => prevId === id ? null : id); };
 
   const totalCalories = dietItems.reduce((sum, item) => sum + Number(item.calories), 0);
-  const consumedCalories = dietItems.reduce((sum, item) => {
-    return item.completedDates.includes(today) ? sum + Number(item.calories) : sum;
-  }, 0);
+  const consumedCalories = dietItems.reduce((sum, item) => item.completedDates.includes(today) ? sum + Number(item.calories) : sum, 0);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a1a24] to-[#0d1b1e] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
+    <div className="min-h-screen w-full bg-black text-[#EDEDED] flex flex-col items-center p-6 font-sans overflow-x-hidden">
       
-      <div className="w-full max-w-md flex items-center justify-between mb-6 mt-2 md:mt-0">
-        <button onClick={() => navigate('/home')} className="text-gray-400 hover:text-white transition p-2">
-          <ArrowLeft size={28} />
+      {/* Minimal Header */}
+      <div className="w-full max-w-md flex items-center justify-between pb-6 border-b border-[#222]">
+        <button onClick={() => navigate('/home')} className="text-[#888] hover:text-white transition-colors">
+          <ArrowLeft size={24} strokeWidth={1.5} />
         </button>
-        <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider">DIET PLAN</h2>
-        <div className="w-10"></div>
+        <h2 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">Diet Plan</h2>
+        <div className="w-6"></div>
       </div>
 
-      <div className="w-full max-w-md flex-1 flex flex-col pb-12">
+      <div className="w-full max-w-md flex-1 flex flex-col pt-8 pb-12">
         
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 shadow-xl mb-8 flex items-center justify-between">
-          <div>
-            <p className="text-orange-100 text-sm font-medium mb-1 uppercase tracking-wider">Today's Calories</p>
-            <div className="text-3xl font-bold text-white">
-              {consumedCalories} <span className="text-lg text-orange-200 font-normal">/ {totalCalories} kcal</span>
-            </div>
-          </div>
-          <div className="bg-white/20 p-4 rounded-full">
-            <Flame size={32} className="text-white" />
+        {/* Typographic Macro Tracker */}
+        <div className="mb-12">
+          <p className="text-[#666] text-xs uppercase tracking-widest mb-2">Today's Intake</p>
+          <div className="flex items-baseline space-x-2">
+            <span className="text-8xl font-light tracking-tighter leading-none">{consumedCalories}</span>
+            <span className="text-2xl text-[#555] font-light">/ {totalCalories} kcal</span>
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-10">
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
-            className="w-full py-3 bg-[#242430] hover:bg-[#2a2a38] text-orange-500 rounded-xl font-bold flex items-center justify-center transition border border-gray-800"
+            className="w-full py-4 border border-[#222] hover:border-white text-[#888] hover:text-white uppercase tracking-widest text-xs font-medium transition-colors flex items-center justify-center"
           >
-            <Plus size={20} className="mr-2" />
-            {showAddForm ? 'CANCEL' : 'ADD DIET TARGET'}
+            {showAddForm ? 'Cancel Entry' : <><Plus size={16} className="mr-2" strokeWidth={1.5}/> Add Diet Target</>}
           </button>
 
           {showAddForm && (
-            <form onSubmit={handleAddItem} className="mt-4 bg-[#1e1e28] p-5 rounded-2xl border border-gray-800 animate-fade-in box-border">
-              <div className="space-y-4 mb-5">
+            <form onSubmit={handleAddItem} className="mt-4 border-b border-[#222] pb-6 animate-fade-in">
+              <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Item Name</label>
-                  <input required type="text" placeholder="e.g. Eggs" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-orange-500 box-border" />
+                  <input required type="text" placeholder="Item Name (e.g. Eggs)" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]" />
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex space-x-6">
                   <div className="flex-1">
-                    <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Qty</label>
-                    <input required type="number" placeholder="6" value={newItem.quantity} onChange={e => setNewItem({...newItem, quantity: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-orange-500 box-border" />
+                    <input required type="number" placeholder="Qty" value={newItem.quantity} onChange={e => setNewItem({...newItem, quantity: e.target.value})} className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]" />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Unit</label>
-                    <input required type="text" placeholder="items" value={newItem.unit} onChange={e => setNewItem({...newItem, unit: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-orange-500 box-border" />
+                    <input required type="text" placeholder="Unit" value={newItem.unit} onChange={e => setNewItem({...newItem, unit: e.target.value})} className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1 uppercase tracking-wider">Calories</label>
-                  <input required type="number" placeholder="450" value={newItem.calories} onChange={e => setNewItem({...newItem, calories: e.target.value})} className="w-full bg-[#121212] text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-orange-500 box-border" />
+                  <input required type="number" placeholder="Calories" value={newItem.calories} onChange={e => setNewItem({...newItem, calories: e.target.value})} className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]" />
                 </div>
               </div>
-              <button type="submit" className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold transition shadow-lg">
-                SAVE ITEM
+              <button type="submit" className="w-full py-3 bg-white text-black font-medium uppercase tracking-widest text-xs hover:bg-[#ddd] transition-colors">
+                Save Nutrition
               </button>
             </form>
           )}
         </div>
 
-        <div className="space-y-3">
+        {/* Ledger-style Diet List */}
+        <div className="space-y-0">
           {isLoading ? (
             <div className="flex justify-center py-10">
-              <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-6 h-6 border-2 border-[#333] border-t-white rounded-full animate-spin"></div>
             </div>
           ) : dietItems.length === 0 && !showAddForm ? (
-            <p className="text-center text-gray-500 mt-10">Your diet plan is empty. Add some items to track!</p>
+            <p className="text-[#555] font-light text-center mt-10">No nutrition targets logged.</p>
           ) : (
             dietItems.map((item) => {
               const isDone = item.completedDates.includes(today);
@@ -198,41 +127,38 @@ export default function Diet() {
                 <div 
                   key={item._id}
                   onClick={() => handleToggle(item._id)}
-                  // UPDATED: Added gap-3
-                  className={`group flex items-center justify-between gap-3 p-4 md:p-5 rounded-2xl cursor-pointer transition border ${isDone ? 'bg-[#1a2e20] border-green-900/50' : 'bg-[#1e1e28] border-gray-800 hover:border-gray-600'}`}
+                  className="group flex items-center justify-between gap-4 py-5 border-b border-[#111] hover:border-[#333] transition-colors cursor-pointer"
                 >
-                  {/* UPDATED: flex-1 min-w-0 for bounding truncation */}
-                  <div className="flex items-center flex-1 min-w-0 mr-2">
-                    <button className={`mr-3 md:mr-4 shrink-0 transition-colors ${isDone ? 'text-green-500' : 'text-gray-500 hover:text-orange-500'}`}>
-                      {isDone ? <CheckCircle2 size={28} /> : <Circle size={28} />}
+                  <div className="flex items-start flex-1 min-w-0">
+                    <button className={`mt-0.5 mr-4 shrink-0 transition-colors ${isDone ? 'text-white' : 'text-[#444] group-hover:text-white'}`}>
+                      {isDone ? <CheckCircle2 size={20} strokeWidth={2} /> : <Circle size={20} strokeWidth={1.5} />}
                     </button>
                     <div className="flex-1 min-w-0">
                       
-                      {/* UPDATED: Added click handler with e.stopPropagation(), and truncation classes */}
                       <h3 
                         onClick={(e) => toggleExpand(e, item._id)}
-                        className={`font-bold text-lg transition-all duration-300 ${
+                        className={`text-lg font-light transition-all duration-300 ${
                           expandedDietId === item._id ? 'break-words whitespace-normal' : 'truncate'
-                        } ${isDone ? 'text-green-100 line-through opacity-70' : 'text-white'}`}
+                        } ${isDone ? 'text-[#444] line-through' : 'text-[#EDEDED]'}`}
                       >
                         {item.name}
                       </h3>
                       
-                      <p className={`text-sm truncate ${isDone ? 'text-green-400/60' : 'text-gray-400'}`}>
+                      <p className={`text-xs mt-1 uppercase tracking-wider font-medium ${isDone ? 'text-[#333]' : 'text-[#666]'}`}>
                         {item.quantity} {item.unit}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-3 md:space-x-4 shrink-0">
-                    <div className={`font-semibold ${isDone ? 'text-green-500/70' : 'text-orange-500'}`}>
-                      {item.calories} <span className="text-xs font-normal opacity-70">kcal</span>
+                  <div className="flex items-center space-x-4 shrink-0">
+                    <div className={`font-light text-lg tracking-tight ${isDone ? 'text-[#444]' : 'text-white'}`}>
+                      {item.calories} <span className="text-xs text-[#666] uppercase tracking-widest ml-1">kcal</span>
                     </div>
                     <button 
                       onClick={(e) => handleDelete(e, item._id)}
-                      className="text-gray-600 hover:text-red-500 p-2 md:p-0 md:opacity-0 group-hover:opacity-100 transition-all duration-300"
+                      className="text-[#444] hover:text-white transition-colors md:opacity-0 group-hover:opacity-100"
                     >
-                      <Trash2 size={20} />
+                      <Trash2 size={20} strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
