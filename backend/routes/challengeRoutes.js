@@ -4,7 +4,10 @@ const {
   getChallenges, 
   createChallenge, 
   acceptChallenge, 
-  updateProgress 
+  updateProgress,
+  decrementProgress,
+  deleteChallenge,
+  forfeitChallenge
 } = require('../controllers/challengeController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -16,5 +19,8 @@ router.route('/')
 
 router.route('/:id/accept').put(protect, acceptChallenge);
 router.route('/:id/progress').put(protect, updateProgress);
+router.route('/:id/decrement').put(protect, decrementProgress);
+router.route('/:id/forfeit').put(protect, forfeitChallenge);
+router.route('/:id').delete(protect, deleteChallenge);
 
 module.exports = router;

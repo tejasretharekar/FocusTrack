@@ -1,7 +1,7 @@
 // frontend/src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckSquare, Timer, Flame, Dumbbell, Trophy, BarChart3, Swords, Brain, Sparkles, LogOut, ShieldAlert } from 'lucide-react';
+import { CheckSquare, Timer, Flame, Dumbbell, Trophy, BarChart3, Swords, Brain, Sparkles, LogOut, ShieldAlert, User } from 'lucide-react';
 
 const quotes = [
   "Discipline equals freedom.",
@@ -75,6 +75,23 @@ export default function Home() {
         </button>
       </div>
 
+      {/* User Profile Bar */}
+      <div className="w-full max-w-4xl flex items-center py-6 border-b border-[#222]">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-[#111] rounded-full flex items-center justify-center border border-[#333]">
+             <User size={20} className="text-[#888]" />
+          </div>
+          <div>
+            <h2 className="text-white font-medium text-lg tracking-wide">
+              {currentUser?.name || 'Agent'}
+            </h2>
+            <p className="text-[#666] text-xs font-light tracking-widest uppercase">
+              @{currentUser?.username || 'unknown'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Quote */}
       <div className="flex-1 flex items-center justify-center w-full max-w-4xl text-center px-4 my-12">
         <h2 className={`text-3xl md:text-5xl lg:text-6xl font-light tracking-tighter leading-tight text-white transition-opacity duration-500 ease-in-out ${fade ? 'opacity-100' : 'opacity-0'}`}>
@@ -90,7 +107,6 @@ export default function Home() {
             onClick={() => handleNavigation(item.path)}
             className="flex flex-col items-center justify-center py-12 bg-black hover:bg-[#111] transition-colors group"
           >
-            {/* Added custom color variable mapping */}
             <div className={`mb-4 transition-colors duration-300 ${item.color} group-hover:text-white`}>
               {item.icon}
             </div>

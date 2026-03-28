@@ -8,7 +8,7 @@ exports.getChallenges = async (req, res) => {
   try {
     const challenges = await Challenge.find({
       $or: [{ creator: req.user._id }, { opponent: req.user._id }]
-    }).populate('creator opponent', 'name email'); // Fetch names to display in UI
+    }).populate('creator opponent', 'name username email'); // Added username
     
     res.status(200).json(challenges);
   } catch (error) {
@@ -19,23 +19,27 @@ exports.getChallenges = async (req, res) => {
 // @desc    Create a new challenge
 // @route   POST /api/challenges
 exports.createChallenge = async (req, res) => {
-  const { title, type, targetDays, opponentEmail } = req.body;
+  const { title, type, targetDays, opponentUsername } = req.body;
 
   try {
     let opponentId = null;
     let initialStatus = 'active';
 
-    // If it's a friend challenge, find the opponent's ID
+    // ... inside createChallenge function
     if (type === 'friend') {
-      const opponent = await User.findOne({ email: opponentEmail });
+      // FIX: Use regex for case-insensitive exact match (^ means start, $ means end, 'i' means case-insensitive)
+      const opponent = await User.findOne({ 
+        username: { $regex: new RegExp(`^${opponentUsername}$`, 'i') } 
+      });
+      
       if (!opponent) {
-        return res.status(404).json({ message: 'User with that email not found' });
+        return res.status(404).json({ message: 'User with that username not found' });
       }
       if (opponent._id.toString() === req.user._id.toString()) {
         return res.status(400).json({ message: 'You cannot challenge yourself' });
       }
       opponentId = opponent._id;
-      initialStatus = 'pending'; // Requires opponent to accept
+      initialStatus = 'pending'; 
     }
 
     const newChallenge = await Challenge.create({
@@ -47,7 +51,8 @@ exports.createChallenge = async (req, res) => {
       status: initialStatus
     });
 
-    res.status(201).json(newChallenge);
+    const populatedChallenge = await Challenge.findById(newChallenge._id).populate('creator opponent', 'name username email');
+    res.status(201).json(populatedChallenge);
   } catch (error) {
     res.status(500).json({ message: 'Failed to create challenge' });
   }
@@ -60,7 +65,6 @@ exports.acceptChallenge = async (req, res) => {
     const challenge = await Challenge.findById(req.params.id);
     if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
     
-    // Only the opponent can accept it
     if (challenge.opponent.toString() !== req.user._id.toString()) {
       return res.status(401).json({ message: 'Not authorized to accept this challenge' });
     }
@@ -94,15 +98,83 @@ exports.updateProgress = async (req, res) => {
       if (challenge.opponentProgress < challenge.targetDays) challenge.opponentProgress += 1;
     }
 
-    // Check if anyone won
     if (challenge.creatorProgress === challenge.targetDays || challenge.opponentProgress === challenge.targetDays) {
       challenge.status = 'completed';
-      // In a full production app, you would inject the 100 points into the winner's total here
     }
 
     await challenge.save();
     res.status(200).json(challenge);
   } catch (error) {
     res.status(500).json({ message: 'Failed to update progress' });
+  }
+};
+
+// @desc    Decrement progress by 1 day
+// @route   PUT /api/challenges/:id/decrement
+exports.decrementProgress = async (req, res) => {
+  try {
+    const challenge = await Challenge.findById(req.params.id);
+    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (challenge.status !== 'active') return res.status(400).json({ message: 'Challenge is not active' });
+
+    const isCreator = challenge.creator.toString() === req.user._id.toString();
+    const isOpponent = challenge.opponent && challenge.opponent.toString() === req.user._id.toString();
+
+    if (!isCreator && !isOpponent) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    if (isCreator) {
+      if (challenge.creatorProgress > 0) challenge.creatorProgress -= 1;
+    } else {
+      if (challenge.opponentProgress > 0) challenge.opponentProgress -= 1;
+    }
+
+    await challenge.save();
+    res.status(200).json(challenge);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to decrement progress' });
+  }
+};
+
+// @desc    Delete a challenge
+// @route   DELETE /api/challenges/:id
+exports.deleteChallenge = async (req, res) => {
+  try {
+    const challenge = await Challenge.findById(req.params.id);
+    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+
+    // Only allow creator to delete, or opponent if they are rejecting a pending invite
+    if (challenge.creator.toString() !== req.user._id.toString() && 
+       (challenge.opponent && challenge.opponent.toString() !== req.user._id.toString())) {
+      return res.status(401).json({ message: 'Not authorized to delete this challenge' });
+    }
+
+    await challenge.deleteOne();
+    res.status(200).json({ message: 'Challenge deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete challenge' });
+  }
+};
+
+// @desc    Forfeit a challenge
+// @route   PUT /api/challenges/:id/forfeit
+exports.forfeitChallenge = async (req, res) => {
+  try {
+    const challenge = await Challenge.findById(req.params.id);
+    if (!challenge) return res.status(404).json({ message: 'Challenge not found' });
+    if (challenge.status !== 'active') return res.status(400).json({ message: 'Challenge must be active to forfeit' });
+
+    const isCreator = challenge.creator.toString() === req.user._id.toString();
+    const isOpponent = challenge.opponent && challenge.opponent.toString() === req.user._id.toString();
+
+    if (!isCreator && !isOpponent) return res.status(401).json({ message: 'Not authorized' });
+
+    challenge.status = 'declined'; 
+    await challenge.save();
+    
+    res.status(200).json(challenge);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to forfeit challenge' });
   }
 };
