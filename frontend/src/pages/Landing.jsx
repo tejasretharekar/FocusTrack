@@ -5,13 +5,14 @@ import { Brain, Timer, Trophy, Swords, CheckSquare, Activity, ArrowRight, Target
 export default function Landing() {
   const navigate = useNavigate();
 
+  // Added distinct rich colors for each feature to match the Home grid
   const features = [
-    { icon: <Timer size={24} strokeWidth={1.5} />, title: "Deep Work Pomodoro", description: "Lock in with customizable focus intervals." },
-    { icon: <CheckSquare size={24} strokeWidth={1.5} />, title: "Task Management", description: "Organize your daily goals and prioritize effectively." },
-    { icon: <Swords size={24} strokeWidth={1.5} />, title: "Head-to-Head Challenges", description: "Send productivity challenges to other users." },
-    { icon: <Activity size={24} strokeWidth={1.5} />, title: "Fitness & Diet Tracking", description: "Log your workouts and meals to keep your physical energy aligned." },
-    { icon: <Trophy size={24} strokeWidth={1.5} />, title: "Global Leaderboard", description: "Climb the ranks to the top of the FocusTrack community." },
-    { icon: <Target size={24} strokeWidth={1.5} />, title: "Analytics & Streaks", description: "Visualize your progress over time and maintain daily streaks." }
+    { icon: <Timer size={24} strokeWidth={1.5} />, title: "Deep Work Pomodoro", description: "Lock in with customizable focus intervals.", color: "text-orange-600" },
+    { icon: <CheckSquare size={24} strokeWidth={1.5} />, title: "Task Management", description: "Organize your daily goals and prioritize effectively.", color: "text-blue-600" },
+    { icon: <Swords size={24} strokeWidth={1.5} />, title: "Head-to-Head Challenges", description: "Send productivity challenges to other users.", color: "text-purple-600" },
+    { icon: <Activity size={24} strokeWidth={1.5} />, title: "Fitness & Diet Tracking", description: "Log your workouts and meals to keep your physical energy aligned.", color: "text-emerald-600" },
+    { icon: <Trophy size={24} strokeWidth={1.5} />, title: "Global Leaderboard", description: "Climb the ranks to the top of the FocusTrack community.", color: "text-yellow-600" },
+    { icon: <Target size={24} strokeWidth={1.5} />, title: "Analytics & Streaks", description: "Visualize your progress over time and maintain daily streaks.", color: "text-cyan-600" }
   ];
 
   return (
@@ -61,7 +62,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-[#222] bg-[#111]">
             {features.map((feature, index) => (
               <div key={index} className="p-10 border border-[#222] bg-black hover:bg-[#0a0a0a] transition-colors group">
-                <div className="mb-8 text-[#555] group-hover:text-white transition-colors">
+                {/* Applied the color mapping here */}
+                <div className={`mb-8 transition-colors duration-300 ${feature.color} group-hover:text-white`}>
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-normal mb-3 text-[#EDEDED]">{feature.title}</h3>
