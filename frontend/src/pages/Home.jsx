@@ -1,9 +1,7 @@
 // frontend/src/pages/Home.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  CheckSquare, Timer, Flame, Dumbbell, Trophy, BarChart3, Swords, Brain, Sparkles, LogOut, ShieldAlert 
-} from 'lucide-react';
+import { CheckSquare, Timer, Flame, Dumbbell, Trophy, BarChart3, Swords, Brain, Sparkles, LogOut, ShieldAlert } from 'lucide-react';
 
 const quotes = [
   "Discipline equals freedom.",
@@ -17,16 +15,11 @@ export default function Home() {
   const navigate = useNavigate();
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [fade, setFade] = useState(true);
-  
-  // 1. Get the current logged-in user from local storage
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    // Parse the user data when the component mounts
     const userData = localStorage.getItem('user');
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
-    }
+    if (userData) setCurrentUser(JSON.parse(userData));
 
     const interval = setInterval(() => {
       setFade(false); 
@@ -45,79 +38,68 @@ export default function Home() {
     navigate('/auth');
   };
 
-  // Base navigation items for everyone
+  // Infused rich, dark accent colors to keep the layout lively but professional
   const navItems = [
-    { title: 'Tasks', path: '/tasks', icon: <CheckSquare size={32} />, color: 'text-focusOrange' },
-    { title: 'Pomodoro', path: '/pomodoro', icon: <Timer size={32} />, color: 'text-focusOrange' },
-    { title: 'Diet', path: '/diet', icon: <Flame size={32} />, color: 'text-focusOrange' },
-    { title: 'Workout', path: '/workout', icon: <Dumbbell size={32} />, color: 'text-focusPurple' },
-    { title: 'Challenges', path: '/challenges', icon: <Swords size={32} />, color: 'text-focusPurple' },
-    { title: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={32} />, color: 'text-yellow-500' },
-    { title: 'Dashboard', path: '/dashboard', icon: <BarChart3 size={32} />, color: 'text-focusPurple' },
+    { title: 'Tasks', path: '/tasks', icon: <CheckSquare size={32} strokeWidth={1.5} />, color: 'text-blue-600' },
+    { title: 'Pomodoro', path: '/pomodoro', icon: <Timer size={32} strokeWidth={1.5} />, color: 'text-orange-600' },
+    { title: 'Diet', path: '/diet', icon: <Flame size={32} strokeWidth={1.5} />, color: 'text-emerald-600' },
+    { title: 'Workout', path: '/workout', icon: <Dumbbell size={32} strokeWidth={1.5} />, color: 'text-red-600' },
+    { title: 'Challenges', path: '/challenges', icon: <Swords size={32} strokeWidth={1.5} />, color: 'text-purple-600' },
+    { title: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={32} strokeWidth={1.5} />, color: 'text-yellow-600' },
+    { title: 'Dashboard', path: '/dashboard', icon: <BarChart3 size={32} strokeWidth={1.5} />, color: 'text-cyan-600' },
   ];
 
-  // 2. Conditionally add the 8th button based on the user's role
   if (currentUser?.role === 'admin') {
-    // If they are an admin, show the Command Center button
-    navItems.push({ title: 'Admin Panel', path: '/admin', icon: <ShieldAlert size={32} />, color: 'text-red-500' });
+    navItems.push({ title: 'Admin', path: '/admin', icon: <ShieldAlert size={32} strokeWidth={1.5} />, color: 'text-rose-600' });
   } else {
-    // If they are a regular user, show the "More Soon" placeholder to keep the grid even
-    navItems.push({ title: 'More Soon', path: '#', icon: <Sparkles size={32} />, color: 'text-gray-500' });
+    navItems.push({ title: 'TBA', path: '#', icon: <Sparkles size={32} strokeWidth={1.5} />, color: 'text-[#555]' });
   }
 
   const handleNavigation = (path) => {
-    if (path === '#') {
-      alert("More features are on the way! Stay focused.");
-    } else {
-      navigate(path);
-    }
+    if (path === '#') alert("More features are on the way.");
+    else navigate(path);
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#2d1406] flex flex-col items-center justify-between p-6 md:p-10 overflow-x-hidden box-border">
+    <div className="min-h-screen w-full bg-black text-[#EDEDED] flex flex-col items-center p-6 font-sans overflow-x-hidden">
       
-      {/* Top: App Logo, Branding & Logout */}
-      <div className="w-full flex justify-between items-center mt-2 md:mt-4">
-        <div className="w-10"></div>
-        <div className="flex items-center space-x-3 bg-black/30 px-6 py-3 rounded-full backdrop-blur-md border border-white/5 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
-          <Brain className="text-focusPurple" size={28} />
-          <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-focusOrange to-focusPurple tracking-widest uppercase">
-            FocusFlow
-          </h1>
+      {/* Minimal Header */}
+      <div className="w-full max-w-4xl flex items-center justify-between pb-6 border-b border-[#222]">
+        <div className="flex items-center space-x-3 text-white">
+          <Brain size={24} strokeWidth={1.5} />
+          <h1 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">FocusTrack</h1>
         </div>
-        <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 transition p-2 w-10 flex justify-end">
-          <LogOut size={24} />
+        <button onClick={handleLogout} className="text-[#555] hover:text-white transition-colors flex items-center text-xs uppercase tracking-widest">
+          <span className="mr-2 hidden sm:inline">Logout</span>
+          <LogOut size={20} strokeWidth={1.5} />
         </button>
       </div>
 
-      {/* Center: Immersive Motivational Quote */}
-      <div className="flex-1 flex items-center justify-center w-full max-w-4xl text-center px-4 my-8">
-        <h2 
-          className={`text-2xl md:text-4xl lg:text-5xl font-bold text-gray-200 tracking-wide leading-relaxed transition-opacity duration-500 ease-in-out ${fade ? 'opacity-100' : 'opacity-0'}`}
-          style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
-        >
-          "{quotes[quoteIndex]}"
+      {/* Hero Quote */}
+      <div className="flex-1 flex items-center justify-center w-full max-w-4xl text-center px-4 my-12">
+        <h2 className={`text-3xl md:text-5xl lg:text-6xl font-light tracking-tighter leading-tight text-white transition-opacity duration-500 ease-in-out ${fade ? 'opacity-100' : 'opacity-0'}`}>
+          {quotes[quoteIndex]}
         </h2>
       </div>
 
-      {/* Bottom: Responsive Navigation Grid */}
-      <div className="w-full max-w-4xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5 pb-4">
+      {/* Grid Menu */}
+      <div className="w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-[1px] bg-[#222] border border-[#222] pb-6 sm:pb-0">
         {navItems.map((item) => (
           <button
             key={item.title}
             onClick={() => handleNavigation(item.path)}
-            className="group flex flex-col items-center justify-center p-6 md:p-8 rounded-3xl bg-[#1e1e28]/40 border border-gray-800 backdrop-blur-sm hover:bg-[#252538]/80 hover:border-gray-600 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]"
+            className="flex flex-col items-center justify-center py-12 bg-black hover:bg-[#111] transition-colors group"
           >
-            <div className={`mb-3 transition-transform duration-300 group-hover:scale-110 ${item.color}`}>
+            {/* Added custom color variable mapping */}
+            <div className={`mb-4 transition-colors duration-300 ${item.color} group-hover:text-white`}>
               {item.icon}
             </div>
-            <span className="text-gray-300 font-bold tracking-wider text-xs md:text-sm uppercase group-hover:text-white transition-colors text-center">
+            <span className="text-[#888] font-medium tracking-widest text-[10px] md:text-xs uppercase group-hover:text-white transition-colors">
               {item.title}
             </span>
           </button>
         ))}
       </div>
-      
     </div>
   );
 }

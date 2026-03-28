@@ -1,7 +1,7 @@
 // frontend/src/pages/Leaderboard.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trophy, Medal, Award, Flame } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -15,89 +15,69 @@ export default function Leaderboard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await fetch(`${API_URL}/leaderboard`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setLeaderboard(data);
-        } else {
-          console.error('Failed to fetch leaderboard');
-          setLeaderboard([]);
-        }
-      } catch (error) {
-        console.error('Network error', error);
-        setLeaderboard([]);
-      } finally {
-        setIsLoading(false);
-      }
+        const response = await fetch(`${API_URL}/leaderboard`, { headers: { Authorization: `Bearer ${token}` } });
+        if (response.ok) setLeaderboard(await response.json()); 
+        else setLeaderboard([]);
+      } catch (error) { setLeaderboard([]); } finally { setIsLoading(false); }
     };
-
     fetchLeaderboard();
   }, [token]);
 
-  const getRankStyles = (index) => {
-    switch (index) {
-      case 0: return { card: 'bg-gradient-to-r from-[#2a1a00] to-[#1a1500] border-yellow-500/60 shadow-[0_0_15px_rgba(234,179,8,0.2)]', text: 'text-yellow-400', icon: <Trophy size={36} className="text-yellow-400 drop-shadow-lg" /> };
-      case 1: return { card: 'bg-gradient-to-r from-[#1a1a2e] to-[#12121a] border-gray-400/50', text: 'text-gray-300', icon: <Medal size={32} className="text-gray-300" /> };
-      case 2: return { card: 'bg-gradient-to-r from-[#2e1510] to-[#1a0c0a] border-orange-600/50', text: 'text-orange-500', icon: <Award size={32} className="text-orange-500" /> };
-      default: return { card: 'bg-[#1e1e28] border-gray-800', text: 'text-purple-500', icon: <span className="text-xl font-bold text-gray-600 w-8 text-center">{index + 1}</span> };
-    }
-  };
-
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex flex-col items-center p-4 md:p-6 overflow-x-hidden box-border">
-      <div className="w-full max-w-md flex items-center justify-between mb-8 mt-2 md:mt-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white transition p-2">
-          <ArrowLeft size={28} />
+    <div className="min-h-screen w-full bg-black text-[#EDEDED] flex flex-col items-center p-6 font-sans overflow-x-hidden">
+      
+      {/* Minimal Header */}
+      <div className="w-full max-w-md flex items-center justify-between pb-6 border-b border-[#222]">
+        <button onClick={() => navigate('/home')} className="text-[#888] hover:text-white transition-colors">
+          <ArrowLeft size={24} strokeWidth={1.5} />
         </button>
-        <h2 className="text-xl md:text-2xl font-bold text-white tracking-wider flex items-center">
-          <Flame className="text-purple-500 mr-2" size={24} /> GLOBAL RANKING
-        </h2>
-        <div className="w-10"></div>
+        <h2 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">Global Ranking</h2>
+        <div className="w-6"></div>
       </div>
 
-      <div className="w-full max-w-md flex-1 flex flex-col pb-12">
+      <div className="w-full max-w-md flex-1 flex flex-col pt-8 pb-12">
         {isLoading ? (
-          <div className="flex-1 flex justify-center items-center">
-            <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex justify-center mt-10">
+            <div className="w-6 h-6 border-2 border-[#333] border-t-white rounded-full animate-spin"></div>
           </div>
         ) : leaderboard.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10">
-            <p className="text-lg">No active users yet.</p>
-            <p className="text-sm">Complete tasks to become the first on the board!</p>
-          </div>
+          <p className="text-[#555] font-light text-center mt-10">No metrics acquired. System idle.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-0">
+            {/* Header row for context */}
+            <div className="flex justify-between text-[10px] uppercase tracking-widest text-[#444] pb-4 border-b border-[#111]">
+              <span className="w-8">Rnk</span>
+              <span className="flex-1 ml-4">Identifier</span>
+              <span className="text-right">Score</span>
+            </div>
+
             {leaderboard.map((user, index) => {
-              const styles = getRankStyles(index);
-              const isTop3 = index < 3;
+              const isTop = index === 0;
               return (
-                <div key={user._id || index} className={`flex items-center justify-between p-4 md:p-5 rounded-2xl border transition-transform hover:scale-[1.02] ${styles.card}`}>
+                <div key={user._id || index} className="flex items-center justify-between py-5 border-b border-[#111] hover:border-[#333] transition-colors group">
                   
-                  {/* UPDATED: Added min-w-0 to flex child so truncate works inside it */}
-                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
-                    <div className="flex items-center justify-center w-8 sm:w-10 shrink-0">{styles.icon}</div>
-                    <div className="min-w-0 flex-1">
-                      
-                      {/* UPDATED: Added truncate class to enforce single line logic for long names */}
-                      <h3 className={`font-bold ${isTop3 ? 'text-xl' : 'text-lg'} text-white tracking-wide truncate max-w-[140px] xs:max-w-[180px] sm:max-w-[250px]`}>
-                        {user.name || 'Anonymous User'}
+                  <div className="flex items-center flex-1 min-w-0">
+                    <div className={`w-8 font-light text-lg ${isTop ? 'text-white' : 'text-[#444]'}`}>
+                      {index + 1 < 10 ? `0${index + 1}` : index + 1}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0 ml-4">
+                      <h3 className={`font-light text-lg tracking-wide truncate ${isTop ? 'text-white' : 'text-[#EDEDED]'}`}>
+                        {user.name || 'Anonymous Protocol'}
                       </h3>
                       
-                      <div className="flex space-x-2 sm:space-x-3 text-xs md:text-sm text-gray-400 mt-1">
-                        <span>💪 {user.workoutPoints || 0}</span>
-                        <span>🥗 {user.dietPoints || 0}</span>
-                        <span>✅ {user.taskPoints || 0}</span>
+                      <div className="flex space-x-3 text-[10px] uppercase tracking-widest text-[#666] mt-1 font-medium">
+                        <span>WK: {user.workoutPoints || 0}</span>
+                        <span>DT: {user.dietPoints || 0}</span>
+                        <span>TS: {user.taskPoints || 0}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* UPDATED: Added shrink-0 so the points never get pushed out of frame */}
-                  <div className={`text-right shrink-0 ml-2 ${styles.text}`}>
-                    <div className={`font-black ${isTop3 ? 'text-3xl' : 'text-2xl'} tracking-tighter`}>{user.totalPoints || 0}</div>
-                    <div className="text-[10px] md:text-xs uppercase tracking-widest opacity-80">Points</div>
+                  <div className="text-right shrink-0 ml-4">
+                    <div className={`font-light text-2xl tracking-tighter ${isTop ? 'text-white' : 'text-[#888]'}`}>
+                      {user.totalPoints || 0}
+                    </div>
                   </div>
 
                 </div>

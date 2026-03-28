@@ -1,7 +1,7 @@
 // frontend/src/pages/Auth.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, AtSign, Lock, User, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
@@ -9,26 +9,17 @@ export default function Auth() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    password: ''
-  });
-
+  const [formData, setFormData] = useState({ name: '', username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // FIX: Wipe any ghost sessions/stale admin tokens before attempting login
     localStorage.removeItem('token');
     localStorage.removeItem('user');
 
     const endpoint = isLogin ? '/auth/login' : '/auth/register';
-    const payload = isLogin
-      ? { username: formData.username, password: formData.password }
-      : formData;
+    const payload = isLogin ? { username: formData.username, password: formData.password } : formData;
 
     try {
       const response = await fetch(`${API_URL}${endpoint}`, {
@@ -36,12 +27,12 @@ export default function Auth() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-
       const data = await response.json();
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({ id: data._id, name: data.name, username: data.username, role: data.role })); navigate('/');
+        localStorage.setItem('user', JSON.stringify({ id: data._id, name: data.name, username: data.username, role: data.role })); 
+        navigate('/home');
       } else {
         setError(data.message || 'Authentication failed');
       }
@@ -52,101 +43,78 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#121212] via-[#1a0b2e] to-[#0a0a0a] flex items-center justify-center p-4 relative">
+    <div className="min-h-screen w-full bg-black text-[#EDEDED] flex flex-col p-6 font-sans overflow-x-hidden">
       
-      {/* NEW: Back to Landing Button */}
-      <button 
-        onClick={() => navigate('/')} 
-        className="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center transition-colors font-semibold"
-      >
-        <ArrowLeft size={20} className="mr-2" />
-        Back
-      </button>
+      {/* Minimal Header */}
+      <div className="w-full max-w-md mx-auto flex items-center justify-between pb-6 border-b border-[#222]">
+        <button onClick={() => navigate('/')} className="text-[#888] hover:text-white transition-colors">
+          <ArrowLeft size={24} strokeWidth={1.5} />
+        </button>
+        <h2 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">Login/Sign in</h2>
+        <div className="w-6"></div>
+      </div>
 
-      <div className="w-full max-w-md bg-[#1e1e28] border border-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
-
-        {/* Header Section */}
-        <div className="p-8 text-center bg-gradient-to-b from-[#251538] to-transparent">
-          <div className="flex justify-center mb-4">
-            <div className="bg-black/40 p-4 rounded-full border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-              <Brain className="text-purple-500" size={40} />
-            </div>
-          </div>
-          <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500 tracking-widest uppercase">
-            FocusFlow
-          </h2>
-          <p className="text-gray-400 mt-2 text-sm">
-            {isLogin ? 'Welcome back. Stay disciplined.' : 'Create your account. Start your journey.'}
-          </p>
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col pt-12">
+        <div className="mb-12">
+          <p className="text-[#666] text-xs uppercase tracking-widest mb-2">System Access</p>
+          <h1 className="text-4xl font-light tracking-tighter leading-none text-white">
+            {isLogin ? 'Login' : 'Create Identity'}
+          </h1>
         </div>
 
-        {/* Form Section */}
-        <form onSubmit={handleSubmit} className="p-8 pt-2 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center font-semibold">
-              {error}
+            <div className="pb-2 border-b border-red-900 text-red-500 text-xs font-medium uppercase tracking-widest">
+              Error: {error}
             </div>
           )}
 
           {!isLogin && (
-            <div className="relative">
-              <User className="absolute left-4 top-3.5 text-gray-500" size={20} />
+            <div>
               <input
                 type="text" required placeholder="Full Name"
                 value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]"
               />
             </div>
           )}
 
-          <div className="relative">
-            <AtSign className="absolute left-4 top-3.5 text-gray-500" size={20} />
+          <div>
             <input
-              type="text" 
-              name="username" 
-              autoComplete="off" 
-              required
-              placeholder="Username"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="w-full bg-[#121212] text-white pl-12 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
+              type="text" name="username" autoComplete="off" required placeholder="Username"
+              value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              className="w-full bg-transparent text-white pb-2 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]"
             />
           </div>
 
           <div className="relative">
-            <Lock className="absolute left-4 top-3.5 text-gray-500" size={20} />
             <input
-              type={showPassword ? "text" : "password"} 
-              name="password"
-              autoComplete="new-password"
-              required 
-              placeholder="Password"
-              value={formData.password} 
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full bg-[#121212] text-white pl-12 pr-12 py-3 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 transition-colors"
+              type={showPassword ? "text" : "password"} name="password" autoComplete="new-password" required placeholder="Password"
+              value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full bg-transparent text-white pb-2 pr-10 border-b border-[#333] focus:outline-none focus:border-white font-light placeholder-[#555]"
             />
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-3.5 text-gray-400 hover:text-white transition-colors focus:outline-none"
+              type="button" onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-0 top-0 text-[#666] hover:text-white transition-colors focus:outline-none"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
             </button>
           </div>
 
-          <button type="submit" className="w-full py-4 bg-gradient-to-r from-orange-500 to-purple-500 hover:opacity-90 text-white rounded-xl font-bold flex items-center justify-center transition-opacity shadow-lg mt-4">
-            {isLogin ? 'ENTER COMMAND CENTER' : 'INITIALIZE ACCOUNT'}
-            <ArrowRight size={20} className="ml-2" />
-          </button>
+          <div className="pt-4">
+            <button type="submit" className="w-full py-4 bg-white text-black font-medium uppercase tracking-widest text-xs hover:bg-[#ddd] transition-colors flex items-center justify-center group">
+              {isLogin ? 'Authenticate' : 'Initialize'}
+              <ArrowRight size={16} strokeWidth={1.5} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center pt-6">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-gray-400 hover:text-white text-sm transition-colors"
+              onClick={() => { setIsLogin(!isLogin); setError(''); setFormData({ name: '', username: '', password: ''}); }}
+              className="text-[#666] hover:text-white text-xs uppercase tracking-widest transition-colors border-b border-transparent hover:border-white pb-1"
             >
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <span className="text-purple-500 font-bold">{isLogin ? 'Sign Up' : 'Log In'}</span>
+              {isLogin ? "No account? Register" : "Have account? Login"}
             </button>
           </div>
         </form>
