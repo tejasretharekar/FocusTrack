@@ -66,7 +66,7 @@ export default function Home() {
       {/* Minimal Header */}
       <div className="w-full max-w-4xl flex items-center justify-between pb-6 border-b border-[#222]">
         <div className="flex items-center space-x-3 text-white">
-          <Brain size={24} strokeWidth={1.5} />
+          <Brain size={24} strokeWidth={1.5} className="text-purple-500" />
           <h1 className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">FocusTrack</h1>
         </div>
         <button onClick={handleLogout} className="text-[#555] hover:text-white transition-colors flex items-center text-xs uppercase tracking-widest">

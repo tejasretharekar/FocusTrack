@@ -21,7 +21,7 @@ export default function Landing() {
       {/* Minimal Header */}
       <nav className="w-full px-6 py-6 border-b border-[#222] flex justify-between items-center">
         <div className="flex items-center space-x-3 text-white">
-          <Brain size={24} strokeWidth={1.5} />
+          <Brain size={24} strokeWidth={1.5} className="text-purple-500" />
           <span className="text-sm font-medium tracking-[0.2em] text-[#888] uppercase">FocusTrack</span>
         </div>
         <button onClick={() => navigate('/auth')} className="text-xs font-medium tracking-widest uppercase text-[#888] hover:text-white transition-colors">
